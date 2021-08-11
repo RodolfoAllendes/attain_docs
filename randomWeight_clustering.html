@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Randomly Weighted Clustering &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cluster Inspection" href="cluster_inspection.html" />
+    <link rel="prev" title="Weighted Clustering" href="weighted_clustering.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster_inspection.html" title="Cluster Inspection"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="weighted_clustering.html" title="Weighted Clustering"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-randomWeight_clustering">
+<span id="randomly-weighted-clustering"></span><h1>Randomly Weighted Clustering<a class="headerlink" href="#module-randomWeight_clustering" title="Permalink to this headline">¶</a></h1>
+<p>Script provided to perform a batch of randomly weighted clusterings of a PPI
+network using the MCL algorithm, and save the results for later inspection.</p>
+<p>Default values are used for all parameters when no extra information is provided
+by the user.</p>
+<div class="section" id="script">
+<h2>Script<a class="headerlink" href="#script" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Initialize a parser for the arguments</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Perform Weighted MCL Clustering on a Network, using random weight selection.&#39;</span>
+    <span class="p">)</span>
+    <span class="c1"># add arguments to handle edges and weights for the network</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--edges&quot;</span><span class="p">,</span>
+       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File where interactions data is stored&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--weights&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File where node&#39;s weights are stored&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--iterations&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of times a random network should be generated and clustered&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--seed&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A seed for the random sequence generator used in the randomization of weights&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># use default interactions when none is provided</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using default interactions...&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="s2">&quot;./data/network1_chuang.txt&quot;</span>
+
+    <span class="c1"># use default weights when none are provided</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">weights</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using default weights...&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="s2">&quot;./data/weights1_siRNA.xlsx&quot;</span>
+
+    <span class="c1"># use default number of iterations when none is provided</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">iterations</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using default number of iterations: 10&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="c1"># use default seed when none is provided</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using default seed: 187372311&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="mi">187372311</span>
+
+    <span class="c1"># Initialize a network using the interactions file</span>
+    <span class="n">net</span> <span class="o">=</span> <span class="n">mynet</span><span class="o">.</span><span class="n">MCLNetwork</span><span class="p">()</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">init_edges</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">init_genes</span><span class="p">()</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">init_gene_edge_mapping</span><span class="p">()</span>
+
+    <span class="c1"># Add weights information</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_gene_weights</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+    <span class="c1"># By setting a seed value, we provide a way to produce the same shuffle of</span>
+    <span class="c1"># weights, thus allowing to reproduce a particular experiment</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">init_random_state</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="c1"># Prompt the user to save the cluster ID for each gene in every run</span>
+    <span class="n">saveID</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># input(&#39;Save Gene\&#39;s cluster ID for each run (y/n): &#39;)</span>
+    <span class="c1"># saveID = True if saveID and saveID==&#39;y&#39; else False</span>
+
+    <span class="c1"># Perform each of the runs selected by the user, previously shuffling the</span>
+    <span class="c1"># weights of the nodes in the network</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">iterations</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">Run: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="c1"># shuffle the node&#39;s weights</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">shuffle_node_weights</span><span class="p">()</span>
+
+        <span class="c1"># once the weights are shuffled, we need to only run a standar weighted</span>
+        <span class="c1"># clustering of the network</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">weighted_clustering</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">saveID</span><span class="o">=</span><span class="n">saveID</span><span class="p">,</span> <span class="n">saveCluList</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Save data to files or print them on screen</span>
+    <span class="n">save</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Save clustering results(y/n): &#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save</span> <span class="ow">and</span> <span class="n">save</span><span class="o">==</span><span class="s1">&#39;y&#39;</span><span class="p">:</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">([</span><span class="s1">&#39;idx&#39;</span><span class="p">,</span> <span class="s1">&#39;wgt&#39;</span><span class="p">])</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">to_csv</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File not generated&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Randomly Weighted Clustering</a><ul>
+<li><a class="reference internal" href="#script">Script</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="weighted_clustering.html"
+                        title="previous chapter">Weighted Clustering</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cluster_inspection.html"
+                        title="next chapter">Cluster Inspection</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/randomWeight_clustering.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cluster_inspection.html" title="Cluster Inspection"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="weighted_clustering.html" title="Weighted Clustering"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

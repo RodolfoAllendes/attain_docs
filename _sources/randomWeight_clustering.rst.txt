@@ -1,0 +1,12 @@
+Randomly Weighted Clustering
+============================
+
+.. moduleauthor:: Rodolfo Allendes <rallendes@nibiohn.go.jp>
+.. automodule:: randomWeight_clustering
+
+Script
+------
+
+.. literalinclude:: ../randomWeight_clustering.py
+  :start-after: # Execute as main program
+  :language: python

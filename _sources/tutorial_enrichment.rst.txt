@@ -1,0 +1,91 @@
+Cluster Revision and Enrichment
+===============================
+
+All clustering results are saved using the CSV format, and thus traditional
+spreadsheet software (such as MS Excel) can be used to review the clusters and
+their composition.
+
+However, in order to facilitate the inspection and analysis of the generated
+cluster, an additional Python script is also available :doc:`cluster_inspection.py <cluster_inspection>`.
+
+Results Inspection
+------------------
+
+Execution of the script to inspect results is as follows:
+
+.. code-block:: console
+
+  (attain) ~attain$ python cluster_inspection.py <options>
+
+  -h(--help)
+    Show the help and finish execution
+  -g(--gene) GENE
+    CSV file containing gene information
+  -c(--cluster) CLUSTER <optional>
+    CSV file containing cluster information
+
+Depending on the files loaded on execution, the information shown by the script
+is slightly different:
+
+#.  Single Gene file from (un)weighted experiment: For each GeneID that the user
+    inputs, the size of the corresponding cluster is shown.
+#.  Single Gene file from randomly weighted experiment: Upon input of a GeneID,
+    summary statistics of the clusters to which the gene belongs on each
+    randomly weighted experiment are shown.
+#.  Gene and Cluster files from an (un)weighted experiment: Number of clusters,
+    largest clusters and clustering statistics are shown on load.
+    For each GeneID the user inputs, both the size and ID of the cluster to which
+    it belongs is shown.
+
+Cluster Enrichment
+------------------
+
+In addition to the information of the cluster listed before, each time the user
+inputs a GeneID, he is also prompted the option to perform enrichment on the
+corresponding cluster.
+
+Enrichment routines currently available are ``Pathway Enrichment``, ``Integrated
+Cluster Pathway Enrichment`` and ``Gene Ontology (GO) Enrichment``. All of them
+provided through the script's integration to `TargetMine <https://targetmine.mizuguchilab.org>`_.
+
+Before the enrichment process is performed, the user is also able to modify the
+parameters associated to it, such as the correction factor used, and the threshold
+value used for significance, among others.
+
+.. warning::
+
+  A valid user account in TargetMine is required to correctly execute the
+  enrichment routines implemented in ``clustering_inspector.py``. Please remember
+  to either include your ``Username`` and ``Password`` combination, or a
+  connection ``Token`` when invoking function
+  :py:func:`init_service() <clustering_inspector.ClusteringInspector.init_service>`
+  of class :class:`ClusteringInspector <clustering_inspector.ClusteringInspector>`.
+
+	Default ``Token`` values are included in the provided code, though there is 
+	no warranty about how long these will still be available.
+
+On completion of the enrichment process, the user is prompted to save the results
+to a single CSV format output file.
+
+A series of enrichment results are included in the ``results`` folder of our
+code distribution. These are named ``chuang_enrich_<readout>_<type>_<gene>.csv``,
+where ``<readout>`` represents the readout used to weight the network (the suffix
+Rand is used to identify a randomly weighted clustering); ``<type>`` respresents
+the enrichment type (Pathway enrichment against the KEGG Pahtway database, or
+GO enrichment for biological process or molecular function); and ``<gene>``
+represents the geneID used as target (throughout our article we investigate the
+behavior of clusters containing APP - gene id 351).
+
+As an example, below is a transcript of the first few lines file
+``chuang_enrich_unw_KEGG_APP(BH).csv``, that lists the KEGG Pahtways enriched by 
+the cluster containing APP from the unweighted clustering of the Chuang PPI 
+Network:
+
+.. code-block:: console
+
+  {'widget': 'gene_pathway_enrichment', 'background': 'backgroundNetwork', 'correction': 'Benjamini Hochberg', 'maxp': 1.0, 'filter': 'KEGG Pathway'}
+  
+  PathwayID Description                      Avg_P-value Count P-values
+  --------- -------------------------------- ----------- ----- --------
+  hsa04972  Pancreatic secretion                   0.194     1  [0.194]
+  hsa04974  Protein digestion and absorption       0.261     1  [0.261]

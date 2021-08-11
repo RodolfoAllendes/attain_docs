@@ -1,0 +1,149 @@
+.. role:: python(code)
+  :language: python
+
+Code and Environment Setting
+============================
+
+Code Download
+-------------
+
+The method proposed for the identification of biologically relevant clusters
+is implemented through a series of Python scripts, publicly available under an
+MIT license, that can be downloaded from:
+`GitHub: ATTAIN <https://github.com/RodolfoAllendes/attain>`_.
+
+In order to download and use the code, simply use the link provided at the
+website to download a ZIP compressed version, and place it at your desired
+location.
+
+Alternatively, you can *fork* the repository to your own GitHub account and/or
+clone it to local storage using the ``git clone`` command. After forking the
+repository on the website, you can use the following commands to clone it:
+
+.. code-block:: console
+
+  ~$ cd <path-to-desired-location>
+  ~$ git init
+  ~$ git clone https://github.com/RodolfoAllendes/attain.git
+
+After downloading (or cloning) the code's repository, you should be able to see
+the following contents (simple explanations are given for each folder):
+
+.. code-block:: console
+
+  ATTAIN
+  ├── data/ - provision of sample data
+  ├── docs/ - this documentation
+  ├── images/ - figures used in the article
+  ├── notebooks/ - jupyter notebooks used for script execution and to generate article's figures
+  ├── results/ - results presented in the article
+  |
+  ├── attain_network.py
+  ├── cluster_inspector.py
+  ├── pathway_enricher.py
+  ├── random_cluster_inspector.py
+  ├── randomWeight_clustering.py
+  ├── README
+  ├── significance_estimating.py
+  ├── significance_inspector.py
+  ├── unweighted_clustering.py
+  └── weighted_clustering.py
+
+
+Anaconda
+--------
+
+As the code for ATTAIN is written in Python, you will need a Python interpreter
+and some extra libraries before you can execute it. For this, we recommend you
+to first install `Anaconda <https://www.anaconda.com/distribution/>`_ as a
+virtual environment manager.
+
+Anaconda will allow you to keep an isolated version of Python and all other
+software requirements, without changing the system's characteristics. Anaconda
+is available for Windows, MacOS and Linux systems.
+
+After installing Anaconda, we recommend the definition of new environment, to be
+used only by ATTAIN. To create and activate a new conda environment, we use the
+following commands:
+
+.. code-block:: console
+
+  ~$ cd <path-to-attain>
+  ~attain$ source /<path-to-conda>/bin/activate
+  (base) ~attain$ conda create -n attain
+  (base) ~attain$ conda activate attain
+  (attain) ~attain$
+
+.. note:: Notice that first, we activate conda's base enviroment, and from there
+  we create the new environment. The currently active conda environment is
+  indicated by its name between parenthesis at the beginning of the console's prompt.
+
+  If during the installation of Anaconda, you included its location in the system's
+  path, then the ``conda`` command should be readily available, making it unnecessary to
+  load the base enviroment.
+
+Package Installation
+--------------------
+
+Your newly created environment will have no packages installed. As ATTAIN was
+coded using Python's version 3.6, we start by installing the corresponding
+interpreter. You can check that the installation was successful and that the
+environment will use our selected interpreter by using the following commands:
+
+.. code-block:: console
+
+  (attain) ~/attain$ conda install python=3.6
+  (attain) ~/attain$ python --version
+  Python 3.6.12 :: Anaconda, Inc.
+
+In addition to python, a few extra packages are required to execute ATTAIN,
+namely these are: ``numpy``, ``pandas``, ``xlrd``, ``markov_clustering`` and
+``intermine``. The version used for each of these packages is listed below:
+
+.. code-block:: console
+
+  $ conda list
+  #Name                     Version                   Build    Channel
+  numpy                     1.16.4           py36h7e9f1db_0
+  pandas                    1.0.5            py36h0573a6f_0
+  xlrd                      1.2.0                    py36_0
+  markov-clustering         0.0.6.dev0               pypi_0    pypi
+  intermine                 1.11.0                     py_0    bioconda
+
+To install all the required packages, in the corresponding versions, use the
+following commands:
+
+.. code-block:: console
+
+  $ conda install numpy=1.16.4
+  $ conda install pandas=1.0.5
+  $ conda install xlrd=1.2.0
+  $ conda install -c bioconda intermine=1.11.0
+
+  $ pip install markov_clustering[drawing]==-.0.6.dev0
+
+.. note:: The markov_clustering clustering package that we used is only available
+  through the pip package manager, thus the change in command.
+
+  Also, some of the packages might require other dependencies to be installed.
+  If this is the case, you should accept the modifications suggested by the
+  conda package manager.
+
+Jupyter Notebooks
+-----------------
+
+A series of Jupyter Notebooks has also been written in an effort to provide
+replicability in the analysis of our results, as these are the ones used to 
+generate the images used throughout our article. These notebooks are stored 
+under the folder ``notebooks`` within ATTAIN's file structure.
+
+A simple Jupyter server can be installed and launched from within your conda
+environment by using the following commands:
+
+.. code-block:: console
+
+  $ conda install jupyter
+  $ cd notebooks/
+  $ jupyter notebook
+
+A new browser window, listing all the notebooks available should be launched.

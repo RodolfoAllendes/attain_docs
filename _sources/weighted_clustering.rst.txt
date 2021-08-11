@@ -1,0 +1,12 @@
+Weighted Clustering
+===================
+
+.. moduleauthor:: Rodolfo Allendes <rallendes@nibiohn.go.jp>
+.. automodule:: weighted_clustering
+
+Script
+------
+
+.. literalinclude:: ../weighted_clustering.py
+  :start-after: # Execute as main program
+  :language: python

@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Code and Environment Setting &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Format" href="tutorial_data.html" />
+    <link rel="prev" title="Welcome to ATTAIN’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial_data.html" title="Data Format"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ATTAIN’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="code-and-environment-setting">
+<h1>Code and Environment Setting<a class="headerlink" href="#code-and-environment-setting" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="code-download">
+<h2>Code Download<a class="headerlink" href="#code-download" title="Permalink to this headline">¶</a></h2>
+<p>The method proposed for the identification of biologically relevant clusters
+is implemented through a series of Python scripts, publicly available under an
+MIT license, that can be downloaded from:
+<a class="reference external" href="https://github.com/RodolfoAllendes/attain">GitHub: ATTAIN</a>.</p>
+<p>In order to download and use the code, simply use the link provided at the
+website to download a ZIP compressed version, and place it at your desired
+location.</p>
+<p>Alternatively, you can <em>fork</em> the repository to your own GitHub account and/or
+clone it to local storage using the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> command. After forking the
+repository on the website, you can use the following commands to clone it:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~$ cd &lt;path-to-desired-location&gt;</span>
+<span class="go">~$ git init</span>
+<span class="go">~$ git clone https://github.com/RodolfoAllendes/attain.git</span>
+</pre></div>
+</div>
+<p>After downloading (or cloning) the code’s repository, you should be able to see
+the following contents (simple explanations are given for each folder):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">ATTAIN</span>
+<span class="go">├── data/ - provision of sample data</span>
+<span class="go">├── docs/ - this documentation</span>
+<span class="go">├── images/ - figures used in the article</span>
+<span class="go">├── notebooks/ - jupyter notebooks used for script execution and to generate article&#39;s figures</span>
+<span class="go">├── results/ - results presented in the article</span>
+<span class="go">|</span>
+<span class="go">├── attain_network.py</span>
+<span class="go">├── cluster_inspector.py</span>
+<span class="go">├── pathway_enricher.py</span>
+<span class="go">├── random_cluster_inspector.py</span>
+<span class="go">├── randomWeight_clustering.py</span>
+<span class="go">├── README</span>
+<span class="go">├── significance_estimating.py</span>
+<span class="go">├── significance_inspector.py</span>
+<span class="go">├── unweighted_clustering.py</span>
+<span class="go">└── weighted_clustering.py</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="anaconda">
+<h2>Anaconda<a class="headerlink" href="#anaconda" title="Permalink to this headline">¶</a></h2>
+<p>As the code for ATTAIN is written in Python, you will need a Python interpreter
+and some extra libraries before you can execute it. For this, we recommend you
+to first install <a class="reference external" href="https://www.anaconda.com/distribution/">Anaconda</a> as a
+virtual environment manager.</p>
+<p>Anaconda will allow you to keep an isolated version of Python and all other
+software requirements, without changing the system’s characteristics. Anaconda
+is available for Windows, MacOS and Linux systems.</p>
+<p>After installing Anaconda, we recommend the definition of new environment, to be
+used only by ATTAIN. To create and activate a new conda environment, we use the
+following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~$ cd &lt;path-to-attain&gt;</span>
+<span class="go">~attain$ source /&lt;path-to-conda&gt;/bin/activate</span>
+<span class="gp gp-VirtualEnv">(base)</span> <span class="go">~attain$ conda create -n attain</span>
+<span class="gp gp-VirtualEnv">(base)</span> <span class="go">~attain$ conda activate attain</span>
+<span class="gp gp-VirtualEnv">(attain)</span> <span class="go">~attain$</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice that first, we activate conda’s base enviroment, and from there
+we create the new environment. The currently active conda environment is
+indicated by its name between parenthesis at the beginning of the console’s prompt.</p>
+<p>If during the installation of Anaconda, you included its location in the system’s
+path, then the <code class="docutils literal notranslate"><span class="pre">conda</span></code> command should be readily available, making it unnecessary to
+load the base enviroment.</p>
+</div>
+</div>
+<div class="section" id="package-installation">
+<h2>Package Installation<a class="headerlink" href="#package-installation" title="Permalink to this headline">¶</a></h2>
+<p>Your newly created environment will have no packages installed. As ATTAIN was
+coded using Python’s version 3.6, we start by installing the corresponding
+interpreter. You can check that the installation was successful and that the
+environment will use our selected interpreter by using the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(attain)</span> <span class="go">~/attain$ conda install python=3.6</span>
+<span class="gp gp-VirtualEnv">(attain)</span> <span class="go">~/attain$ python --version</span>
+<span class="go">Python 3.6.12 :: Anaconda, Inc.</span>
+</pre></div>
+</div>
+<p>In addition to python, a few extra packages are required to execute ATTAIN,
+namely these are: <code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">pandas</span></code>, <code class="docutils literal notranslate"><span class="pre">xlrd</span></code>, <code class="docutils literal notranslate"><span class="pre">markov_clustering</span></code> and
+<code class="docutils literal notranslate"><span class="pre">intermine</span></code>. The version used for each of these packages is listed below:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda list
+<span class="gp">#</span>Name                     Version                   Build    Channel
+<span class="go">numpy                     1.16.4           py36h7e9f1db_0</span>
+<span class="go">pandas                    1.0.5            py36h0573a6f_0</span>
+<span class="go">xlrd                      1.2.0                    py36_0</span>
+<span class="go">markov-clustering         0.0.6.dev0               pypi_0    pypi</span>
+<span class="go">intermine                 1.11.0                     py_0    bioconda</span>
+</pre></div>
+</div>
+<p>To install all the required packages, in the corresponding versions, use the
+following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install <span class="nv">numpy</span><span class="o">=</span><span class="m">1</span>.16.4
+<span class="gp">$ </span>conda install <span class="nv">pandas</span><span class="o">=</span><span class="m">1</span>.0.5
+<span class="gp">$ </span>conda install <span class="nv">xlrd</span><span class="o">=</span><span class="m">1</span>.2.0
+<span class="gp">$ </span>conda install -c bioconda <span class="nv">intermine</span><span class="o">=</span><span class="m">1</span>.11.0
+
+<span class="gp">$ </span>pip install markov_clustering<span class="o">[</span>drawing<span class="o">]==</span>-.0.6.dev0
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The markov_clustering clustering package that we used is only available
+through the pip package manager, thus the change in command.</p>
+<p>Also, some of the packages might require other dependencies to be installed.
+If this is the case, you should accept the modifications suggested by the
+conda package manager.</p>
+</div>
+</div>
+<div class="section" id="jupyter-notebooks">
+<h2>Jupyter Notebooks<a class="headerlink" href="#jupyter-notebooks" title="Permalink to this headline">¶</a></h2>
+<p>A series of Jupyter Notebooks has also been written in an effort to provide
+replicability in the analysis of our results, as these are the ones used to
+generate the images used throughout our article. These notebooks are stored
+under the folder <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> within ATTAIN’s file structure.</p>
+<p>A simple Jupyter server can be installed and launched from within your conda
+environment by using the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install jupyter
+<span class="gp">$ </span><span class="nb">cd</span> notebooks/
+<span class="gp">$ </span>jupyter notebook
+</pre></div>
+</div>
+<p>A new browser window, listing all the notebooks available should be launched.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Code and Environment Setting</a><ul>
+<li><a class="reference internal" href="#code-download">Code Download</a></li>
+<li><a class="reference internal" href="#anaconda">Anaconda</a></li>
+<li><a class="reference internal" href="#package-installation">Package Installation</a></li>
+<li><a class="reference internal" href="#jupyter-notebooks">Jupyter Notebooks</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to ATTAIN’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial_data.html"
+                        title="next chapter">Data Format</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_envSetting.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial_data.html" title="Data Format"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ATTAIN’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

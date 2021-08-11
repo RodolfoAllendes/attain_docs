@@ -1,0 +1,10 @@
+ATTAIN Network
+==============
+
+.. moduleauthor:: Rodolfo Allendes <rallendes@nibiohn.go.jp>
+.. automodule:: attain_network
+
+.. autoclass:: AttainNetwork
+  :members:
+
+  .. automethod:: __init__

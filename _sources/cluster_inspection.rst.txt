@@ -1,0 +1,12 @@
+Cluster Inspection
+==================
+
+.. moduleauthor:: Rodolfo Allendes <rallendes@nibiohn.go.jp>
+.. automodule:: cluster_inspection
+
+Script
+------
+
+.. literalinclude:: ../cluster_inspection.py
+  :start-after: # Execute as main program
+  :language: python

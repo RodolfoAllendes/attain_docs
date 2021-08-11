@@ -1,0 +1,398 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>ATTAIN Network &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Clustering Inspector" href="clustering_inspector.html" />
+    <link rel="prev" title="Cluster Inspection" href="cluster_inspection.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clustering_inspector.html" title="Clustering Inspector"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cluster_inspection.html" title="Cluster Inspection"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-attain_network">
+<span id="attain-network"></span><h1>ATTAIN Network<a class="headerlink" href="#module-attain_network" title="Permalink to this headline">¶</a></h1>
+<p>Convenience class used to handle a network in the context of using MCL for
+clustering and posterior analysis.</p>
+<dl class="class">
+<dt id="attain_network.AttainNetwork">
+<em class="property">class </em><code class="sig-prename descclassname">attain_network.</code><code class="sig-name descname">AttainNetwork</code><a class="reference internal" href="_modules/attain_network.html#AttainNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Definition of a Network, as a collection of edges and nodes.</p>
+<p>Base class for the representation of a weighted network to be clustered and
+analyzed within the Attain methodology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_rand</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Random state of the Network</p></li>
+<li><p><strong>_genes</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store the genes of the network</p></li>
+<li><p><strong>_edges</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store the edges of the network</p></li>
+<li><p><strong>_clusters</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store clusters information</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="attain_network.AttainNetwork.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an empty instance of network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.add_cluster_info">
+<code class="sig-name descname">add_cluster_info</code><span class="sig-paren">(</span><em class="sig-param">clusters</em>, <em class="sig-param">run=None</em>, <em class="sig-param">saveID=True</em>, <em class="sig-param">saveCluList=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.add_cluster_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.add_cluster_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include the cluster identifier for each gene in the network</p>
+<p>After the clustering routine has been run, either a single time or as
+part of a batch of runs, the size of the cluster to which each gene was
+assigned and together with a cluster identifier can be added to the
+gene’s information in the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clusters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – The list of clusters generated using the MCL algorithm</p></li>
+<li><p><strong>run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Identifies a single run when clustering in a batch</p></li>
+<li><p><strong>saveID</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Retain both cluster size and id, or only size</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.add_gene_weights">
+<code class="sig-name descname">add_gene_weights</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.add_gene_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.add_gene_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add weights information to the _genes DataFrame</p>
+<p>From the provided list of weights, the selected values are added to the
+internal _genes list.</p>
+<p>Processing of weights: All values are made positive (by taking the abs)
+of each, and missing values are replaced by the median of the weights so
+as to avoid blanks.</p>
+<p>Since the nature of the clustering algorithm requires the weights to be
+to be associated to the edges of the network, once the information is
+loaded to the _genes, a call to update the information available in the
+_edges dataframe is also made.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The file that contains all weights information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.drop_columns">
+<code class="sig-name descname">drop_columns</code><span class="sig-paren">(</span><em class="sig-param">cols</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.drop_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.drop_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop given columns from the _genes dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cols</strong> (<em>List</em>) – A list of columns to drop from the _genes dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.get_cluster_by_gene">
+<code class="sig-name descname">get_cluster_by_gene</code><span class="sig-paren">(</span><em class="sig-param">geneID</em>, <em class="sig-param">run=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.get_cluster_by_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.get_cluster_by_gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide access to all members of a particular cluster</p>
+<p>Given the id of a gene, return the list of all genes that belong to the
+same cluster as the given gene.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geneID</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The id of the gene whose cluster we want to access</p></li>
+<li><p><strong>run</strong> – The specific clustering run we want to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Run type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of genes in the same cluster as the given gene.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.get_cluster_id">
+<code class="sig-name descname">get_cluster_id</code><span class="sig-paren">(</span><em class="sig-param">geneID</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.get_cluster_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.get_cluster_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cluster ID of the cluster containing the given gene</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>geneID</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The id of the gene whose clusterID we are trying to find</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The cluster ID of the corresponding cluster, if the geneID is not valid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.get_gene">
+<code class="sig-name descname">get_gene</code><span class="sig-paren">(</span><em class="sig-param">id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.get_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.get_gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide access to all the information currently available for a gene</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The ID of the gene to return</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The information stored in the network for the given gene</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.get_genes">
+<code class="sig-name descname">get_genes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.get_genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.get_genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide access to the internal _genes dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The _genes dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.init_edges">
+<code class="sig-name descname">init_edges</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.init_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.init_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize _edges DataFrame from provided data file</p>
+<p>Based on the interactions provided through the text file, load the list
+of genes and interactions that define the network on which we will run
+different types of clustering.</p>
+<p>When using this method to re-load the edges of the network, all previous
+information on both the _edges and _genes internal variables is lost
+and replaced for new versions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The file that contains the list of interactions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.init_edges_weights">
+<code class="sig-name descname">init_edges_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.init_edges_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.init_edges_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give each _edge a weight, based on the current weights of genes</p>
+<p>MCL is based in the idea that the weight (or strengh) of the edges
+between nodes in a network influences the way in which the nodes should
+be clustered together, thus it requires the edges to have an associated
+weight.</p>
+<p>This method initialize the weight of each edge as the sum of the weights
+of its source and target nodes, and adds this informatation as a new
+column to the _edges DataFrame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.init_gene_edge_mapping">
+<code class="sig-name descname">init_gene_edge_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.init_gene_edge_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.init_gene_edge_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the _edges identifiers to _genes index</p>
+<p>Genes and Edges are mainly identified through a GENEID, an identifier
+for biological data that is not correlative for the current network.</p>
+<p>To use MCL’s algorithm, we need the nodes and edges in the network to
+use a correlative identifier, that goes from 0 to n-1, where n is the
+number of nodes in the network. Such identifier is easily achieved by
+selecting the index of the _genes DataFrame.</p>
+<p>This method creates two new columns on the _edges dataframe that use the
+gene index to encode the edge’s source and end points.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.init_genes">
+<code class="sig-name descname">init_genes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.init_genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.init_genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize _genes DataFrame from current _edges DataFrame</p>
+<p>The _genes DataFrame is used to store information that is individual to
+genes in the current network, such as their associated weight, or the
+resulting cluster association obtained from the MCL clustering algorithm.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.init_mapping">
+<code class="sig-name descname">init_mapping</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.init_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.init_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the mapping DataFrame</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.init_matrix">
+<code class="sig-name descname">init_matrix</code><span class="sig-paren">(</span><em class="sig-param">unweighted=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.init_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.init_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the sparse matrix representation of the network</p>
+<p>In order to run the MCL algorithm a squared, undirected (two-way link)
+sparse matrix representation of the network is required. We define this
+matrix based on the information stored in the _edges dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>unweighted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Wether the matrix should use weighted edges or not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.init_random_state">
+<code class="sig-name descname">init_random_state</code><span class="sig-paren">(</span><em class="sig-param">seed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.init_random_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.init_random_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the network’s random state.</p>
+<p>We use a numpy random state to handle the shuffling of weights of nodes
+in the network, before we apply clustering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The seed used to initialize the random state</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.print_details">
+<code class="sig-name descname">print_details</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.print_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.print_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print details of the current network to screen</p>
+<p>General information on the network, such as the number of distinct nodes
+and edges that compose it are shown on screen, using the functionality
+already available for DataFrames.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.shuffle_node_weights">
+<code class="sig-name descname">shuffle_node_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.shuffle_node_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.shuffle_node_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shuffle the nodes selected weight</p>
+<p>Shuffling the gene’s weights implies a change in the weight associated
+to each edge in the network, thus, everytime this function is invoked,
+we need to both, shuffle the weights in the _genes dataframe, and then
+recalculate the corresponding weights in the _edges dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if the weights were shuffled. False in any other situation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.to_csv">
+<code class="sig-name descname">to_csv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the current network and clustering results to csv files</p>
+<p>In order to persist calculations and use them later for processing, the
+_genes and _clusters DFs can be saved to csv files. The generated files
+are placed by default under a ‘results’ folder in the current directory.
+Names for the files need to be individually indicated by the user on
+execution.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.unweighted_clustering">
+<code class="sig-name descname">unweighted_clustering</code><span class="sig-paren">(</span><em class="sig-param">inflation=1.8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.unweighted_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.unweighted_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform unweighted clustering on the network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inflation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The inflation parameter used by the mcl algorithm</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The clustering results generated by the mcl algorithm</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="attain_network.AttainNetwork.weighted_clustering">
+<code class="sig-name descname">weighted_clustering</code><span class="sig-paren">(</span><em class="sig-param">run=None</em>, <em class="sig-param">saveID=True</em>, <em class="sig-param">saveCluList=True</em>, <em class="sig-param">inflation=1.8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/attain_network.html#AttainNetwork.weighted_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#attain_network.AttainNetwork.weighted_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform weighted clustering on the network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Identifies a single clustering run when part of a batch</p></li>
+<li><p><strong>saveID</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Indicates if cluster id should be included in _genes DF</p></li>
+<li><p><strong>saveCluList</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Indicates if the list of genes for each cluster should be stored or not</p></li>
+<li><p><strong>inflation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The inflation parameter used by the mcl algorithm</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The clustering results generated by the mcl algorithm</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cluster_inspection.html"
+                        title="previous chapter">Cluster Inspection</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="clustering_inspector.html"
+                        title="next chapter">Clustering Inspector</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/attain_network.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clustering_inspector.html" title="Clustering Inspector"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cluster_inspection.html" title="Cluster Inspection"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

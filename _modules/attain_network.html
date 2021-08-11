@@ -1,0 +1,607 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>attain_network &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ATTAIN 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for attain_network</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Convenience class used to handle a network in the context of using MCL for</span>
+<span class="sd">clustering and posterior analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">markov_clustering</span> <span class="k">as</span> <span class="nn">mcl</span>
+<span class="kn">from</span> <span class="nn">intermine.webservice</span> <span class="kn">import</span> <span class="n">Service</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sps</span>
+
+<div class="viewcode-block" id="AttainNetwork"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork">[docs]</a><span class="k">class</span> <span class="nc">AttainNetwork</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Definition of a Network, as a collection of edges and nodes.</span>
+
+<span class="sd">    Base class for the representation of a weighted network to be clustered and</span>
+<span class="sd">    analyzed within the Attain methodology.</span>
+
+<span class="sd">    :var int _rand: Random state of the Network</span>
+<span class="sd">    :var DataFrame _genes: Pandas DataFrame used to store the genes of the network</span>
+<span class="sd">    :var DataFrame _edges: Pandas DataFrame used to store the edges of the network</span>
+<span class="sd">    :var DataFrame _clusters: Pandas DataFrame used to store clusters information</span>
+<span class="sd">		</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AttainNetwork.__init__"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize an empty instance of network.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#: Pandas DataFrame used to store the genes of the network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="c1">#: Pandas DataFrame used to store the edges of the network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="c1">#: Pandas DataFrame used to gene to weight information. Optional.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="c1">#: Pandas DataFrame used to store clusters information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="c1">#: Random state of the network, used for the randomization of weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rand</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.init_edges"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.init_edges">[docs]</a>    <span class="k">def</span> <span class="nf">init_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize _edges DataFrame from provided data file</span>
+
+<span class="sd">        Based on the interactions provided through the text file, load the list</span>
+<span class="sd">        of genes and interactions that define the network on which we will run</span>
+<span class="sd">        different types of clustering.</span>
+
+<span class="sd">        When using this method to re-load the edges of the network, all previous</span>
+<span class="sd">        information on both the _edges and _genes internal variables is lost</span>
+<span class="sd">        and replaced for new versions.</span>
+
+<span class="sd">        :param str file: The file that contains the list of interactions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Print notification</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing network using graph from:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+        <span class="c1"># Interactions information from graphFile will be stored on the private</span>
+        <span class="c1"># _edges variable. Data is loaded and pre-processed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Remove incomplete rows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Remove duplicates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Remove loops (we assume first and second column are from and to,</span>
+        <span class="c1"># independent of the format of the identifiers used)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Reset the index of the dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Identify &#39;from&#39; and &#39;to&#39; columns for edge definition.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.init_mapping"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.init_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">init_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize the mapping DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Print notification</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing gene to weight mapping from:&quot;</span><span class="p">,</span><span class="n">file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.init_edges_weights"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.init_edges_weights">[docs]</a>    <span class="k">def</span> <span class="nf">init_edges_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Give each _edge a weight, based on the current weights of genes</span>
+
+<span class="sd">        MCL is based in the idea that the weight (or strengh) of the edges</span>
+<span class="sd">        between nodes in a network influences the way in which the nodes should</span>
+<span class="sd">        be clustered together, thus it requires the edges to have an associated</span>
+<span class="sd">        weight.</span>
+
+<span class="sd">        This method initialize the weight of each edge as the sum of the weights</span>
+<span class="sd">        of its source and target nodes, and adds this informatation as a new</span>
+<span class="sd">        column to the _edges DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># drop the current weights (if any) from the _edges datraframe, as they</span>
+        <span class="c1"># will be calculated using the current gene weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;wgt&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Extract only the weights from the _genes dataset, to then use them for</span>
+        <span class="c1"># the initialization of the _edges weights</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[[</span><span class="s1">&#39;GENEID&#39;</span><span class="p">,</span> <span class="s1">&#39;wgt&#39;</span><span class="p">]]</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[[</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="s1">&#39;to&#39;</span><span class="p">]]</span>
+
+        <span class="c1"># Will do the calculation of the weights using extra DataFrames to avoid</span>
+        <span class="c1"># running out of memory on the merging when the operations is repeated</span>
+        <span class="c1"># over multiple runs of a randomized clustering approach</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">edges</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s1">&#39;GENEID&#39;</span><span class="p">)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">edges</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s1">&#39;GENEID&#39;</span><span class="p">)</span>
+        <span class="n">edges</span><span class="p">[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="s1">&#39;wgt_x&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">edges</span><span class="p">[</span><span class="s1">&#39;wgt_y&#39;</span><span class="p">]</span>
+        <span class="c1"># update the weights in the network&#39;s edges dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span>
+        <span class="c1"># remove from memory the auxiliary dataframes</span>
+        <span class="k">del</span> <span class="n">weights</span><span class="p">,</span> <span class="n">edges</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.init_genes"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.init_genes">[docs]</a>    <span class="k">def</span> <span class="nf">init_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize _genes DataFrame from current _edges DataFrame</span>
+
+<span class="sd">        The _genes DataFrame is used to store information that is individual to</span>
+<span class="sd">        genes in the current network, such as their associated weight, or the</span>
+<span class="sd">        resulting cluster association obtained from the MCL clustering algorithm.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initialize list of genes based on the current _edges DataFrame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;GENEID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">]),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># drop duplicates in the genes list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># reset the index so that it counts the right amount of genes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># add an index to genes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">index</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.init_gene_edge_mapping"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.init_gene_edge_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">init_gene_edge_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Map the _edges identifiers to _genes index</span>
+
+<span class="sd">        Genes and Edges are mainly identified through a GENEID, an identifier</span>
+<span class="sd">        for biological data that is not correlative for the current network.</span>
+
+<span class="sd">        To use MCL&#39;s algorithm, we need the nodes and edges in the network to</span>
+<span class="sd">        use a correlative identifier, that goes from 0 to n-1, where n is the</span>
+<span class="sd">        number of nodes in the network. Such identifier is easily achieved by</span>
+<span class="sd">        selecting the index of the _genes DataFrame.</span>
+
+<span class="sd">        This method creates two new columns on the _edges dataframe that use the</span>
+<span class="sd">        gene index to encode the edge&#39;s source and end points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add a new column based on the matches between GENEID and edges[from]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">,</span>
+            <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span>
+            <span class="n">left_on</span> <span class="o">=</span> <span class="s1">&#39;from&#39;</span><span class="p">,</span>
+            <span class="n">right_on</span> <span class="o">=</span> <span class="s1">&#39;GENEID&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;GENEID&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Then add a column based on the the match between GENEID and edges[to]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">,</span>
+            <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span>
+            <span class="n">left_on</span> <span class="o">=</span> <span class="s1">&#39;to&#39;</span><span class="p">,</span>
+            <span class="n">right_on</span> <span class="o">=</span> <span class="s1">&#39;GENEID&#39;</span><span class="p">,</span>
+            <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;_from&#39;</span><span class="p">,</span> <span class="s1">&#39;_to&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;GENEID&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.init_matrix"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.init_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">init_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unweighted</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize the sparse matrix representation of the network</span>
+
+<span class="sd">        In order to run the MCL algorithm a squared, undirected (two-way link)</span>
+<span class="sd">        sparse matrix representation of the network is required. We define this</span>
+<span class="sd">        matrix based on the information stored in the _edges dataframe.</span>
+
+<span class="sd">        :param unweighted: Wether the matrix should use weighted edges or not</span>
+<span class="sd">        :type unweighted: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;idx_from&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;idx_to&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;idx_to&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;idx_from&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">unweighted</span><span class="p">:</span>
+            <span class="n">wgts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+                <span class="n">axis</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wgts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),),</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">((</span><span class="n">wgts</span><span class="p">,(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.init_random_state"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.init_random_state">[docs]</a>    <span class="k">def</span> <span class="nf">init_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize the network&#39;s random state.</span>
+
+<span class="sd">        We use a numpy random state to handle the shuffling of weights of nodes</span>
+<span class="sd">        in the network, before we apply clustering.</span>
+
+<span class="sd">        :param seed: The seed used to initialize the random state</span>
+<span class="sd">        :type seed: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.add_cluster_info"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.add_cluster_info">[docs]</a>    <span class="k">def</span> <span class="nf">add_cluster_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusters</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saveID</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">saveCluList</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Include the cluster identifier for each gene in the network</span>
+
+<span class="sd">        After the clustering routine has been run, either a single time or as</span>
+<span class="sd">        part of a batch of runs, the size of the cluster to which each gene was</span>
+<span class="sd">        assigned and together with a cluster identifier can be added to the</span>
+<span class="sd">        gene&#39;s information in the network.</span>
+
+
+<span class="sd">        :param clusters: The list of clusters generated using the MCL algorithm</span>
+<span class="sd">        :type clusters: :class:`list`</span>
+<span class="sd">        :param run: Identifies a single run when clustering in a batch</span>
+<span class="sd">        :type run: int</span>
+<span class="sd">        :param saveID: Retain both cluster size and id, or only size</span>
+<span class="sd">        :type saveID: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">run</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cl_id</span> <span class="o">=</span> <span class="s1">&#39;clu_id&#39;</span>
+            <span class="n">cl_size</span> <span class="o">=</span> <span class="s1">&#39;clu_size&#39;</span>
+            <span class="n">cl_genes</span> <span class="o">=</span> <span class="s1">&#39;clu_genes&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cl_id</span> <span class="o">=</span> <span class="s1">&#39;clu_id_&#39;</span><span class="o">+</span><span class="n">run</span>
+            <span class="n">cl_size</span> <span class="o">=</span> <span class="s1">&#39;clu_size_&#39;</span><span class="o">+</span><span class="n">run</span>
+            <span class="n">cl_genes</span> <span class="o">=</span> <span class="s1">&#39;clu_genes_&#39;</span><span class="o">+</span><span class="n">run</span>
+
+        <span class="c1"># Define extra columns to store cluster size and index for each gene</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="n">cl_size</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">saveID</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="n">cl_id</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">saveCluList</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="p">[</span><span class="n">cl_size</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="p">[</span><span class="n">cl_genes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Assign the correct cluster values for each gene</span>
+        <span class="c1"># idx: i-th cluster within the list</span>
+        <span class="c1"># c: a list with all the elements of the i-th cluster</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clusters</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">saveCluList</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">cl_genes</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">cl_size</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="c1"># gPos the j-th gene within the i-th cluster</span>
+            <span class="k">for</span> <span class="n">gPos</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="n">cl_size</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">gPos</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                <span class="c1"># Only retain the gene-cluster mapping in the gene DF if requested</span>
+                <span class="k">if</span> <span class="n">saveID</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="n">cl_id</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">gPos</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+                <span class="c1"># Only retain a list of genes for each cluster if requested</span>
+                <span class="k">if</span> <span class="n">saveCluList</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">cl_genes</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;GENEID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">gPos</span><span class="p">])</span>
+            <span class="c1"># Only if saved, sort the list of genes in each cluster and reorder</span>
+            <span class="c1"># the columns in the dataframe</span>
+            <span class="k">if</span> <span class="n">saveCluList</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">cl_genes</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.add_gene_weights"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.add_gene_weights">[docs]</a>    <span class="k">def</span> <span class="nf">add_gene_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add weights information to the _genes DataFrame</span>
+
+<span class="sd">        From the provided list of weights, the selected values are added to the</span>
+<span class="sd">        internal _genes list.</span>
+
+<span class="sd">        Processing of weights: All values are made positive (by taking the abs)</span>
+<span class="sd">        of each, and missing values are replaced by the median of the weights so</span>
+<span class="sd">        as to avoid blanks.</span>
+
+<span class="sd">        Since the nature of the clustering algorithm requires the weights to be</span>
+<span class="sd">        to be associated to the edges of the network, once the information is</span>
+<span class="sd">        loaded to the _genes, a call to update the information available in the</span>
+<span class="sd">        _edges dataframe is also made.</span>
+
+<span class="sd">        :param file: The file that contains all weights information</span>
+<span class="sd">        :type file: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Print notification</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing weights from:&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+        <span class="c1"># Read the weights into a new DataFrame</span>
+        <span class="n">wgt</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="c1"># Allow the user to select the weight to be added to the _genes DF. Only</span>
+        <span class="c1"># a single weight value is allowed at any give time. To change the</span>
+        <span class="c1"># selection, a new call to this method, with the original file needs to</span>
+        <span class="c1"># be made</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">wgt</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available weights: &quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">] - </span><span class="si">{</span><span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="n">sel</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">sel</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please select weight:&quot;</span><span class="p">)</span>
+                <span class="n">sel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrong value selected.&quot;</span><span class="p">)</span>
+                <span class="n">sel</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Keep only the weight column selected by the user</span>
+        <span class="n">idName</span> <span class="o">=</span> <span class="s1">&#39;GENEID&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="s1">&#39;WEIGHTID&#39;</span>
+        <span class="n">wgt</span> <span class="o">=</span> <span class="n">wgt</span><span class="p">[[</span><span class="n">idName</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">sel</span><span class="p">]]]</span>
+        <span class="c1"># set every value as positive</span>
+        <span class="n">wgt</span><span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="n">sel</span><span class="p">]]</span> <span class="o">=</span> <span class="n">wgt</span><span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="n">sel</span><span class="p">]]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+
+        <span class="c1"># Add the weight information to the nodes</span>
+        <span class="c1"># If no mapping information is provided, then we simply merge the two</span>
+        <span class="c1"># weight&#39;s information into the gene DF</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">wgt</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;GENEID&#39;</span><span class="p">)</span>
+        <span class="c1"># Else, we use the mapping information to merge the corresponding values</span>
+        <span class="c1"># from the weights file, to their corresponding gene in the Gene&#39;s DF</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># first merge the mapping information</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_map</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;GENEID&#39;</span><span class="p">)</span>
+            <span class="c1"># now we can actually use this for the merging of the weights</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">wgt</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;WEIGHTID&#39;</span><span class="p">)</span>
+            <span class="c1"># since several weights can be associated to a single gene, we combine</span>
+            <span class="c1"># them using their mean value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;GENEID&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="c1"># this leaves the GENEID as index for the DF, so we move it back to</span>
+            <span class="c1"># a column</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Rename the column for weight in _genes DF to &#39;wgt&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">labels</span><span class="p">[</span><span class="n">sel</span><span class="p">]:</span> <span class="s1">&#39;wgt&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># calculate the median, to complete missing values</span>
+        <span class="n">median</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span>
+        <span class="c1"># and use it to complete the missing values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">median</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Use the weights in the _genes dataframe to fill in the information</span>
+        <span class="c1"># about weights in the _edges dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_edges_weights</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.drop_columns"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.drop_columns">[docs]</a>    <span class="k">def</span> <span class="nf">drop_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Drop given columns from the _genes dataframe</span>
+
+<span class="sd">        :param cols: A list of columns to drop from the _genes dataframe</span>
+<span class="sd">        :type cols: List</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.to_csv"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.to_csv">[docs]</a>    <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save the current network and clustering results to csv files</span>
+
+<span class="sd">        In order to persist calculations and use them later for processing, the</span>
+<span class="sd">        _genes and _clusters DFs can be saved to csv files. The generated files</span>
+<span class="sd">        are placed by default under a &#39;results&#39; folder in the current directory.</span>
+<span class="sd">        Names for the files need to be individually indicated by the user on</span>
+<span class="sd">        execution.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the name of the file for gene data. Place in folder results/ and</span>
+        <span class="c1"># add csv extension if required</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Name of output file for Gene data: &#39;</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;results/&#39;</span><span class="o">+</span><span class="n">out</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;results/&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">out</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">-</span><span class="mi">4</span> <span class="k">else</span> <span class="n">out</span>
+            <span class="c1"># save the _genes DataFrame</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved _genes to file: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Empty _genes DF... not saving.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Get the name of the file for cluster data. Do the same processing.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Name of output file for Cluster data: &#39;</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;results/&#39;</span><span class="o">+</span><span class="n">out</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;results/&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">out</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">-</span><span class="mi">4</span> <span class="k">else</span> <span class="n">out</span>
+            <span class="c1"># Move the index to a &#39;clu_id&#39; column if the column doesnt exist</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;clu_id&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;clu_id&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="c1"># Save the contents of the _clusters DataFrame</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved _clusters to file: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Empty _clusters DF... not saving.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.shuffle_node_weights"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.shuffle_node_weights">[docs]</a>    <span class="k">def</span> <span class="nf">shuffle_node_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Shuffle the nodes selected weight</span>
+
+<span class="sd">        Shuffling the gene&#39;s weights implies a change in the weight associated</span>
+<span class="sd">        to each edge in the network, thus, everytime this function is invoked,</span>
+<span class="sd">        we need to both, shuffle the weights in the _genes dataframe, and then</span>
+<span class="sd">        recalculate the corresponding weights in the _edges dataframe.</span>
+
+<span class="sd">        :return: True if the weights were shuffled. False in any other situation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Can&#39;t shuffle the weights if the random state hasn&#39;t been initialized</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rand</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># retrieve the original weights associated to each node</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># shuffle the weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rand</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="c1"># assign the shuffled weights to the _genes dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;wgt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span>
+
+        <span class="c1"># Change the weights of the edges, to match those randomly shuffled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_edges_weights</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.unweighted_clustering"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.unweighted_clustering">[docs]</a>    <span class="k">def</span> <span class="nf">unweighted_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inflation</span><span class="o">=</span><span class="mf">1.8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Perform unweighted clustering on the network</span>
+
+<span class="sd">        :param inflation: The inflation parameter used by the mcl algorithm</span>
+<span class="sd">        :type inflation: float</span>
+
+<span class="sd">        :return: The clustering results generated by the mcl algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialize an unweighted matrix for the current network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_matrix</span><span class="p">()</span>
+        <span class="c1"># run the mcl clustering algorithm over the matrix</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mcl</span><span class="o">.</span><span class="n">run_mcl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">,</span> <span class="n">inflation</span><span class="o">=</span><span class="n">inflation</span><span class="p">)</span>
+        <span class="c1"># add the resulting cluster information to the genes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cluster_info</span><span class="p">(</span><span class="n">mcl</span><span class="o">.</span><span class="n">get_clusters</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+        <span class="c1"># return the clustering results</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.weighted_clustering"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.weighted_clustering">[docs]</a>    <span class="k">def</span> <span class="nf">weighted_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saveID</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">saveCluList</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inflation</span><span class="o">=</span><span class="mf">1.8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Perform weighted clustering on the network</span>
+
+<span class="sd">        :param run: Identifies a single clustering run when part of a batch</span>
+<span class="sd">        :type run: int</span>
+<span class="sd">        :param saveID: Indicates if cluster id should be included in _genes DF</span>
+<span class="sd">        :type saveID: bool</span>
+<span class="sd">        :param saveCluList: Indicates if the list of genes for each cluster should be stored or not</span>
+<span class="sd">        :type saveCluList: bool</span>
+<span class="sd">        :param inflation: The inflation parameter used by the mcl algorithm</span>
+<span class="sd">        :type inflation: float</span>
+
+<span class="sd">        :return: The clustering results generated by the mcl algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialize a weighted sparse matrix for the current network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_matrix</span><span class="p">(</span><span class="n">unweighted</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># run the mcl clustering algorithm on the matrix</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">mcl</span><span class="o">.</span><span class="n">run_mcl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">,</span> <span class="n">inflation</span><span class="o">=</span><span class="n">inflation</span><span class="p">)</span>
+        <span class="c1"># add the resulting cluster information to the genes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cluster_info</span><span class="p">(</span><span class="n">mcl</span><span class="o">.</span><span class="n">get_clusters</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">run</span><span class="p">,</span> <span class="n">saveID</span><span class="p">,</span> <span class="n">saveCluList</span><span class="p">)</span>
+        <span class="c1"># return the clustering results</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.get_gene"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.get_gene">[docs]</a>    <span class="k">def</span> <span class="nf">get_gene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Provide access to all the information currently available for a gene</span>
+
+<span class="sd">        :param int id: The ID of the gene to return</span>
+<span class="sd">        :return: The information stored in the network for the given gene</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;GENEID&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.get_genes"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.get_genes">[docs]</a>    <span class="k">def</span> <span class="nf">get_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Provide access to the internal _genes dataframe</span>
+
+<span class="sd">        :return: The _genes dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.get_cluster_by_gene"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.get_cluster_by_gene">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_by_gene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geneID</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Provide access to all members of a particular cluster</span>
+
+<span class="sd">        Given the id of a gene, return the list of all genes that belong to the</span>
+<span class="sd">        same cluster as the given gene.</span>
+
+<span class="sd">        :param geneID: The id of the gene whose cluster we want to access</span>
+<span class="sd">        :type geneID: int</span>
+<span class="sd">        :param run: The specific clustering run we want to use</span>
+<span class="sd">        :run type: int</span>
+<span class="sd">        :return: The list of genes in the same cluster as the given gene.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine if we are looking for a particular clustering run</span>
+        <span class="k">if</span> <span class="n">run</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cl_id</span> <span class="o">=</span> <span class="s1">&#39;clu_id&#39;</span>
+            <span class="n">cl_genes</span> <span class="o">=</span> <span class="s1">&#39;clu_genes&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cl_id</span> <span class="o">=</span> <span class="s1">&#39;clu_id_&#39;</span><span class="o">+</span><span class="n">run</span>
+            <span class="n">cl_genes</span> <span class="o">=</span> <span class="s1">&#39;clu_genes_&#39;</span><span class="o">+</span><span class="n">run</span>
+
+        <span class="c1"># Get the id of the cluster for the given gene</span>
+        <span class="n">cluID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;GENEID&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">geneID</span><span class="p">,</span> <span class="n">cl_id</span><span class="p">]</span>
+        <span class="c1"># make sure the gene provided is valid and thus has been assigned a</span>
+        <span class="c1"># cluster</span>
+        <span class="k">if</span> <span class="n">cluID</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">cluID</span><span class="p">)</span>
+
+        <span class="c1"># Extract the single cluster ID</span>
+        <span class="n">cluID</span> <span class="o">=</span> <span class="n">cluID</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Return a DataFrame that contains all the genes with the same cluID</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="p">[</span><span class="s1">&#39;clu_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cluID</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;clu_genes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.get_cluster_id"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.get_cluster_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geneID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the cluster ID of the cluster containing the given gene</span>
+
+<span class="sd">        :param int geneID: The id of the gene whose clusterID we are trying to find</span>
+<span class="sd">        :return: The cluster ID of the corresponding cluster, if the geneID is not valid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">GENEID</span> <span class="o">==</span> <span class="n">geneID</span><span class="p">]</span>
+        <span class="c1"># if the Gene was not found (i.e. there is not such a gene in the dataset),</span>
+        <span class="c1"># return None</span>
+        <span class="k">if</span> <span class="n">cluster</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">cluster</span><span class="o">.</span><span class="n">clu_id</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AttainNetwork.print_details"><a class="viewcode-back" href="../attain_network.html#attain_network.AttainNetwork.print_details">[docs]</a>    <span class="k">def</span> <span class="nf">print_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Print details of the current network to screen</span>
+
+<span class="sd">        General information on the network, such as the number of distinct nodes</span>
+<span class="sd">        and edges that compose it are shown on screen, using the functionality</span>
+<span class="sd">        already available for DataFrames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----</span><span class="se">\n</span><span class="s1">NODES</span><span class="se">\n</span><span class="s1">------&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-----</span><span class="se">\n</span><span class="s1">EDGES</span><span class="se">\n</span><span class="s1">-----&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">head</span><span class="p">())</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ATTAIN 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

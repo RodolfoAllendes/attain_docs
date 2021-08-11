@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cluster Revision and Enrichment &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Unweighted Clustering" href="unweighted_clustering.html" />
+    <link rel="prev" title="Network Generation and Clustering" href="tutorial_clustering.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="unweighted_clustering.html" title="Unweighted Clustering"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_clustering.html" title="Network Generation and Clustering"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="cluster-revision-and-enrichment">
+<h1>Cluster Revision and Enrichment<a class="headerlink" href="#cluster-revision-and-enrichment" title="Permalink to this headline">¶</a></h1>
+<p>All clustering results are saved using the CSV format, and thus traditional
+spreadsheet software (such as MS Excel) can be used to review the clusters and
+their composition.</p>
+<p>However, in order to facilitate the inspection and analysis of the generated
+cluster, an additional Python script is also available <a class="reference internal" href="cluster_inspection.html"><span class="doc">cluster_inspection.py</span></a>.</p>
+<div class="section" id="results-inspection">
+<h2>Results Inspection<a class="headerlink" href="#results-inspection" title="Permalink to this headline">¶</a></h2>
+<p>Execution of the script to inspect results is as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(attain)</span> <span class="go">~attain$ python cluster_inspection.py &lt;options&gt;</span>
+
+<span class="go">-h(--help)</span>
+<span class="go">  Show the help and finish execution</span>
+<span class="go">-g(--gene) GENE</span>
+<span class="go">  CSV file containing gene information</span>
+<span class="go">-c(--cluster) CLUSTER &lt;optional&gt;</span>
+<span class="go">  CSV file containing cluster information</span>
+</pre></div>
+</div>
+<p>Depending on the files loaded on execution, the information shown by the script
+is slightly different:</p>
+<ol class="arabic simple">
+<li><p>Single Gene file from (un)weighted experiment: For each GeneID that the user
+inputs, the size of the corresponding cluster is shown.</p></li>
+<li><p>Single Gene file from randomly weighted experiment: Upon input of a GeneID,
+summary statistics of the clusters to which the gene belongs on each
+randomly weighted experiment are shown.</p></li>
+<li><p>Gene and Cluster files from an (un)weighted experiment: Number of clusters,
+largest clusters and clustering statistics are shown on load.
+For each GeneID the user inputs, both the size and ID of the cluster to which
+it belongs is shown.</p></li>
+</ol>
+</div>
+<div class="section" id="cluster-enrichment">
+<h2>Cluster Enrichment<a class="headerlink" href="#cluster-enrichment" title="Permalink to this headline">¶</a></h2>
+<p>In addition to the information of the cluster listed before, each time the user
+inputs a GeneID, he is also prompted the option to perform enrichment on the
+corresponding cluster.</p>
+<p>Enrichment routines currently available are <code class="docutils literal notranslate"><span class="pre">Pathway</span> <span class="pre">Enrichment</span></code>, <code class="docutils literal notranslate"><span class="pre">Integrated</span>
+<span class="pre">Cluster</span> <span class="pre">Pathway</span> <span class="pre">Enrichment</span></code> and <code class="docutils literal notranslate"><span class="pre">Gene</span> <span class="pre">Ontology</span> <span class="pre">(GO)</span> <span class="pre">Enrichment</span></code>. All of them
+provided through the script’s integration to <a class="reference external" href="https://targetmine.mizuguchilab.org">TargetMine</a>.</p>
+<p>Before the enrichment process is performed, the user is also able to modify the
+parameters associated to it, such as the correction factor used, and the threshold
+value used for significance, among others.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A valid user account in TargetMine is required to correctly execute the
+enrichment routines implemented in <code class="docutils literal notranslate"><span class="pre">clustering_inspector.py</span></code>. Please remember
+to either include your <code class="docutils literal notranslate"><span class="pre">Username</span></code> and <code class="docutils literal notranslate"><span class="pre">Password</span></code> combination, or a
+connection <code class="docutils literal notranslate"><span class="pre">Token</span></code> when invoking function
+<a class="reference internal" href="clustering_inspector.html#clustering_inspector.ClusteringInspector.init_service" title="clustering_inspector.ClusteringInspector.init_service"><code class="xref py py-func docutils literal notranslate"><span class="pre">init_service()</span></code></a>
+of class <a class="reference internal" href="clustering_inspector.html#clustering_inspector.ClusteringInspector" title="clustering_inspector.ClusteringInspector"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClusteringInspector</span></code></a>.</p>
+<blockquote>
+<div><p>Default <code class="docutils literal notranslate"><span class="pre">Token</span></code> values are included in the provided code, though there is
+no warranty about how long these will still be available.</p>
+</div></blockquote>
+</div>
+<p>On completion of the enrichment process, the user is prompted to save the results
+to a single CSV format output file.</p>
+<p>A series of enrichment results are included in the <code class="docutils literal notranslate"><span class="pre">results</span></code> folder of our
+code distribution. These are named <code class="docutils literal notranslate"><span class="pre">chuang_enrich_&lt;readout&gt;_&lt;type&gt;_&lt;gene&gt;.csv</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">&lt;readout&gt;</span></code> represents the readout used to weight the network (the suffix
+Rand is used to identify a randomly weighted clustering); <code class="docutils literal notranslate"><span class="pre">&lt;type&gt;</span></code> respresents
+the enrichment type (Pathway enrichment against the KEGG Pahtway database, or
+GO enrichment for biological process or molecular function); and <code class="docutils literal notranslate"><span class="pre">&lt;gene&gt;</span></code>
+represents the geneID used as target (throughout our article we investigate the
+behavior of clusters containing APP - gene id 351).</p>
+<p>As an example, below is a transcript of the first few lines file
+<code class="docutils literal notranslate"><span class="pre">chuang_enrich_unw_KEGG_APP(BH).csv</span></code>, that lists the KEGG Pahtways enriched by
+the cluster containing APP from the unweighted clustering of the Chuang PPI
+Network:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">{&#39;widget&#39;: &#39;gene_pathway_enrichment&#39;, &#39;background&#39;: &#39;backgroundNetwork&#39;, &#39;correction&#39;: &#39;Benjamini Hochberg&#39;, &#39;maxp&#39;: 1.0, &#39;filter&#39;: &#39;KEGG Pathway&#39;}</span>
+
+<span class="go">PathwayID Description                      Avg_P-value Count P-values</span>
+<span class="go">--------- -------------------------------- ----------- ----- --------</span>
+<span class="go">hsa04972  Pancreatic secretion                   0.194     1  [0.194]</span>
+<span class="go">hsa04974  Protein digestion and absorption       0.261     1  [0.261]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cluster Revision and Enrichment</a><ul>
+<li><a class="reference internal" href="#results-inspection">Results Inspection</a></li>
+<li><a class="reference internal" href="#cluster-enrichment">Cluster Enrichment</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial_clustering.html"
+                        title="previous chapter">Network Generation and Clustering</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="unweighted_clustering.html"
+                        title="next chapter">Unweighted Clustering</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_enrichment.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="unweighted_clustering.html" title="Unweighted Clustering"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_clustering.html" title="Network Generation and Clustering"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

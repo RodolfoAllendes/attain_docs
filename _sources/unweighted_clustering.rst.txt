@@ -1,0 +1,12 @@
+Unweighted Clustering
+=====================
+
+.. moduleauthor:: Rodolfo Allendes <rallendes@nibiohn.go.jp>
+.. automodule:: unweighted_clustering
+
+Script
+------
+
+.. literalinclude:: ../unweighted_clustering.py
+  :start-after: # Execute as main program
+  :language: python

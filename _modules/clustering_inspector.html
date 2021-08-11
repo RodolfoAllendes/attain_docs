@@ -1,0 +1,516 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>clustering_inspector &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ATTAIN 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for clustering_inspector</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Convenience class used to review the results gathered from weighted</span>
+<span class="sd">and unweighted clustering routines.</span>
+
+<span class="sd">Together with reviewing the results of clustering experiments, it is possible to</span>
+<span class="sd">perform pathway enrichment (through TargetMine&#39;s API) for the cluster containing</span>
+<span class="sd">a user specified gene. The enrichment results are only displayed to screen.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span>
+
+<span class="kn">from</span> <span class="nn">attain_network</span> <span class="kn">import</span> <span class="n">AttainNetwork</span>
+<span class="kn">from</span> <span class="nn">intermine.webservice</span> <span class="kn">import</span> <span class="n">Service</span>
+
+<div class="viewcode-block" id="ClusteringInspector"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector">[docs]</a><span class="k">class</span> <span class="nc">ClusteringInspector</span><span class="p">(</span><span class="n">AttainNetwork</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Convinience class used to inspect clustering results</span>
+
+<span class="sd">    :ivar int _rand: Random state of the Network</span>
+<span class="sd">    :ivar DataFrame _genes: Pandas DataFrame used to store the genes of the network</span>
+<span class="sd">    :ivar DataFrame _edges: Pandas DataFrame used to store the edges of the network</span>
+<span class="sd">    :ivar DataFrame _clusters: Pandas DataFrame used to store clusters information</span>
+<span class="sd">    :var DataFrame _pathways: Pandas DataFrame used to store enrichment results</span>
+<span class="sd">    :var Service _service: A TargetMine service object used for enrichment analysis</span>
+<span class="sd">    :var dict _serviceOpts: The options used for Enrichment throught the TargetMine API</span>
+<span class="sd">    :var bool _isRandom: Are we looking at clustering results from a randomized experiment</span>
+<span class="sd">    :var bool _hasClusterDetails: Whether cluster information are provided as separate file</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ClusteringInspector.__init__"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize an empty instance of Clustering Inspector</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make available the DFs used to handle genes and clusters from MCLNetwork</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Initialize new parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PathwayID&#39;</span><span class="p">,</span> <span class="s1">&#39;Description&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;Avg_P-value&#39;</span><span class="p">,</span> <span class="s1">&#39;Count&#39;</span><span class="p">,</span> <span class="s1">&#39;P-values&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_serviceType</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Set default options for enrichment options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># We do not assume the processing of a randomized experiment nor the</span>
+        <span class="c1"># presence of a clusters file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isRandom</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hasClusterDetails</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.add_enriched_pathways"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.add_enriched_pathways">[docs]</a>    <span class="k">def</span> <span class="nf">add_enriched_pathways</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">cid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Store a list of enriched pahtways in the _pathways DataFrame</span>
+
+<span class="sd">        :param cid int: The cluster id that produced the enrichment</span>
+<span class="sd">        :param list paths: the list of pathways to store</span>
+<span class="sd">        :param bool verbose: If true, print the _pahtways DF to stardar output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add each result to the DataFrame</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="c1"># Check if the pathway is already in the pathways DataFrame</span>
+            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">identifier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s1">&#39;Count&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">p</span><span class="o">.</span><span class="n">p_value</span>
+                <span class="k">if</span> <span class="n">cid</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s1">&#39;P-values&#39;</span><span class="p">][</span><span class="n">cid</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">p_value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s1">&#39;P-values&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">p_value</span><span class="p">)</span>
+            <span class="c1"># If not, we add it as a new row</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cid</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pval</span> <span class="o">=</span> <span class="p">{</span><span class="n">cid</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">p_value</span><span class="p">}</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pval</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">p_value</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span>
+                        <span class="s1">&#39;PathwayID&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+                        <span class="s1">&#39;Description&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                        <span class="s1">&#39;Count&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="s1">&#39;sum&#39;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">p_value</span><span class="p">,</span>
+                        <span class="s1">&#39;P-values&#39;</span><span class="p">:</span> <span class="n">pval</span>
+                        <span class="p">},</span> <span class="n">name</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">identifier</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="c1"># print the resulting DF if requested</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.calculate_enrichment"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.calculate_enrichment">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_enrichment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Perform pathway enrichment for the given genes using current options</span>
+
+<span class="sd">        :param list genes: A list of GeneIDs</span>
+<span class="sd">        :return: The list of enriched pathways found using TargetMine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Genes in calc enrichment&#39;</span><span class="p">,</span><span class="n">genes</span><span class="p">)</span>
+        <span class="c1"># Create the background network from the list of genes if required. Notice</span>
+        <span class="c1"># that the GENEIDs could be a column or the index of the _genes DataFrame</span>
+        <span class="n">netName</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;backgroundNetwork&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;backgroundNetwork&#39;</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="s1">&#39;GENEID&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">[</span><span class="s1">&#39;GENEID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">create_list</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">netName</span><span class="p">,</span> <span class="n">list_type</span><span class="o">=</span><span class="s1">&#39;Gene&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Create a list in TargetMine that we can use for enrichment</span>
+        <span class="nb">list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">create_list</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="n">list_type</span><span class="o">=</span><span class="s1">&#39;Gene&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;created the lists&#39;</span><span class="p">)</span>
+        <span class="c1"># Perform enrichment using the current options</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pathways</span> <span class="o">=</span> <span class="nb">list</span><span class="o">.</span><span class="n">calculate_enrichment</span><span class="p">(</span>
+                <span class="n">widget</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;widget&#39;</span><span class="p">],</span>
+                <span class="n">background</span><span class="o">=</span><span class="n">netName</span><span class="p">,</span> <span class="c1">#self._serviceOpts[&#39;background&#39;],</span>
+                <span class="n">correction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;correction&#39;</span><span class="p">],</span>
+                <span class="n">maxp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;maxp&#39;</span><span class="p">],</span>
+                <span class="nb">filter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;something is wrong with the enrichment&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">)</span>
+
+        <span class="c1"># Remove the list from the account</span>
+        <span class="nb">list</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;backgroundNetwork&#39;</span><span class="p">:</span>
+            <span class="n">net</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="c1"># Return the list of enriched clusters</span>
+        <span class="k">return</span> <span class="n">pathways</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.clear_pathways"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.clear_pathways">[docs]</a>    <span class="k">def</span> <span class="nf">clear_pathways</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Re-initialize the Pathways DataFrame</span>
+
+<span class="sd">        Clear the DataFrame where enrichment results are stored. Leaves it empty</span>
+<span class="sd">        with only the required columns defined</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PathwayID&#39;</span><span class="p">,</span> <span class="s1">&#39;Description&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;Avg_P-value&#39;</span><span class="p">,</span> <span class="s1">&#39;Count&#39;</span><span class="p">,</span> <span class="s1">&#39;P-values&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.display_largest_clusters"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.display_largest_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">display_largest_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Print to standard output the largest clusters</span>
+
+<span class="sd">        :param int size: The number of largest clusters to print</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;clu_size&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.display_clustering_statistics"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.display_clustering_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">display_clustering_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Print summary statistics of the clustering process</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">clu_size</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_cluster_by_gene"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_cluster_by_gene">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_by_gene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geneID</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the list of genes in the same cluster as geneID</span>
+<span class="sd">        Overrides AttainNetwork</span>
+
+<span class="sd">        Given the id of a gene, return the list of all genes that belong to the</span>
+<span class="sd">        same cluster as the given gene.</span>
+
+<span class="sd">        :param int geneID: The id of the gene whose cluster we want to access</span>
+<span class="sd">        :param int run: The specific clustering run we want to use</span>
+<span class="sd">        :return list: The list of genes in the same cluster as the given gene.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine if we are looking for a particular clustering run</span>
+        <span class="k">if</span> <span class="n">run</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cl_id</span> <span class="o">=</span> <span class="s1">&#39;clu_id&#39;</span>
+            <span class="n">cl_genes</span> <span class="o">=</span> <span class="s1">&#39;clu_genes&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cl_id</span> <span class="o">=</span> <span class="s1">&#39;clu_id_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+            <span class="n">cl_genes</span> <span class="o">=</span> <span class="s1">&#39;clu_genes_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+
+        <span class="c1"># Get the id of the cluster for the given gene</span>
+        <span class="n">cluID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">geneID</span><span class="p">,</span> <span class="n">cl_id</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hasClusterDetails</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">geneID</span><span class="p">,</span> <span class="n">cl_id</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hasClusterDetails</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">cluID</span><span class="p">,</span><span class="s1">&#39;clu_genes&#39;</span><span class="p">])</span>
+
+        <span class="c1"># retrieve all the other genes that belong to the same cluster</span>
+        <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="p">[</span><span class="n">cl_id</span><span class="p">]</span> <span class="o">==</span> <span class="n">cluID</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">cluster</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cluster</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_gene"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_gene">[docs]</a>    <span class="k">def</span> <span class="nf">get_gene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Provide access to all the information currently available for a gene</span>
+<span class="sd">        Overrides AttainNetwork</span>
+
+<span class="sd">        :param int id: The ID of the gene to return</span>
+<span class="sd">        :return: The information stored in the network for the given gene</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_service"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_service">[docs]</a>    <span class="k">def</span> <span class="nf">get_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Provide access to the enrichment service</span>
+
+<span class="sd">        :return: The enrichment service initialized or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_hasClusterDetails"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_hasClusterDetails">[docs]</a>    <span class="k">def</span> <span class="nf">get_hasClusterDetails</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the value of _hasClusterDetails</span>
+
+<span class="sd">        :return bool: The value of _hasClusterDetails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hasClusterDetails</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_isRandom"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_isRandom">[docs]</a>    <span class="k">def</span> <span class="nf">get_isRandom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the value of _isRandom</span>
+
+<span class="sd">        :return bool: The value of _isRandom</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isRandom</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_number_of_clusters"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_number_of_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the number of clusters</span>
+
+<span class="sd">        :return: The number of rows in the _clusters dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_number_of_runs"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_number_of_runs">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isRandom</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.get_serviceOpts"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.get_serviceOpts">[docs]</a>    <span class="k">def</span> <span class="nf">get_serviceOpts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Provide access to Pathway Enrichment Options</span>
+
+<span class="sd">        :return: The dictionary with the current options for pathway enrichment or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.init_service"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.init_service">[docs]</a>    <span class="k">def</span> <span class="nf">init_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Inialize the Service used for results enrichment</span>
+
+<span class="sd">        In order to perform enrichment of the clusters found within the network,</span>
+<span class="sd">        we need to connect to TargetMine&#39;s enrichment services. These are</span>
+<span class="sd">        provided, for registered users, through a public API.</span>
+<span class="sd">        This method uses the provided user and password credentials to create a</span>
+<span class="sd">        service that can later be used to perform cluster enrichment.</span>
+<span class="sd">        Currently, two services are available, both based on the InterMine</span>
+<span class="sd">        platform: TargetMine (for Human PPI clustering results) and FlyMine</span>
+<span class="sd">        (for Drosophila PPI clustering results).</span>
+<span class="sd">        It also defines the default options used to perform cluster enrichment</span>
+<span class="sd">        through the TargetMine service.</span>
+
+<span class="sd">        :param str service: The enrichment service to use</span>
+<span class="sd">        :param str user: The user name registered in the service</span>
+<span class="sd">        :param str pwd: The password for the given user</span>
+<span class="sd">        :param str token: Alternative to user/pwd login, the token registered to use a given account in the corresponding service</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Default options</span>
+        <span class="n">tm0_service</span> <span class="o">=</span> <span class="s1">&#39;https://targetmine.mizuguchilab.org:443/tm2008/service&#39;</span> <span class="c1">#frozen</span>
+        <span class="n">tm1_service</span> <span class="o">=</span> <span class="s1">&#39;https://targetmine.mizuguchilab.org:443/targetmine/service&#39;</span>
+        <span class="n">fm_service</span> <span class="o">=</span> <span class="s1">&#39;https://www.flymine.org/flymine/service&#39;</span> <span class="c1">#flybase</span>
+        <span class="n">tm0_token</span> <span class="o">=</span> <span class="s1">&#39;i1I7R8aaP43fkaF1Qbt3&#39;</span><span class="c1"># token for frozen TargetMine</span>
+        <span class="n">tm1_token</span> <span class="o">=</span> <span class="s1">&#39;Q1Z7e2leb9U8l64c95U9&#39;</span> <span class="c1"># token for current TargetMine</span>
+        <span class="n">fm_token</span> <span class="o">=</span> <span class="s1">&#39;c1Z7n7L33c68WbS2Fbq3&#39;</span> <span class="c1"># token for FlyMine</span>
+
+        <span class="c1"># If service is not provided, then determine which one two use from three</span>
+        <span class="c1"># default options: A &#39;frozen&#39; version of TargetMine, made available for</span>
+        <span class="c1"># the replication of results published, current TargetMine or FlyMine.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">service</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select Enrichment Service:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+                <span class="s1">&#39;0: TargetMine - Oct.2020 Version (default)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+                <span class="s1">&#39;1: TargetMine - Current</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+                <span class="s1">&#39;2: FlyMine&#39;</span><span class="p">)</span>
+            <span class="n">opt</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_serviceType</span> <span class="o">=</span> <span class="s1">&#39;FlyMine&#39;</span> <span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span> <span class="k">else</span> <span class="s1">&#39;TargetMine&#39;</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">fm_service</span> <span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span> <span class="k">else</span> <span class="p">(</span><span class="n">tm1_service</span> <span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="n">tm0_service</span><span class="p">)</span>
+
+        <span class="c1"># Initialize service using the provided account</span>
+        <span class="k">if</span> <span class="n">user</span> <span class="ow">and</span> <span class="n">pwd</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Login using user/pwd&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">pwd</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">token</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Login using token&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No user/pwd nor token were provided, try to log in using default</span>
+            <span class="c1"># credentials</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">fm_token</span> <span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span> <span class="k">else</span> <span class="p">(</span><span class="n">tm1_token</span> <span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="n">tm0_token</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Trying to login using default token&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.init_enrichment_opts"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.init_enrichment_opts">[docs]</a>    <span class="k">def</span> <span class="nf">init_enrichment_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set up the options required for the enrichment of clusters.</span>
+
+<span class="sd">        The enrichment options depend on the service used and the type of</span>
+<span class="sd">        enrichment.</span>
+<span class="sd">        Configuration options are provided based on the available options</span>
+<span class="sd">        for the different services.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">widgetNames</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;TargetMine&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;gene_pathway_enrichment&#39;</span><span class="p">,</span> <span class="s1">&#39;gene_ipc_enrichment&#39;</span><span class="p">,</span><span class="s1">&#39;gene_go_enrichment&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;FlyMine&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;pathway_enrichment&#39;</span><span class="p">,</span> <span class="s1">&#39;go_enrichment_for_gene&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="c1"># select enrichment widget</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select Enrichment Widget:&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">wn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">widgetNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceType</span><span class="p">]):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span><span class="n">wn</span><span class="p">)</span> <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">opt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;widget&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">widgetNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceType</span><span class="p">][</span><span class="n">opt</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;widget&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">widgetNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceType</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c1"># select background - default to None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select Background Population:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+            <span class="s1">&#39;0: List of GENEIDs (default)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+            <span class="s1">&#39;1: Entire Gene Database</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+            <span class="s1">&#39;2: Custom list&#39;</span><span class="p">)</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">opt</span> <span class="ow">and</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter the list name: &#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">opt</span><span class="o">==</span><span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s1">&#39;backgroundNetwork&#39;</span>
+
+        <span class="c1"># select correction</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select Correction:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+            <span class="s1">&#39;0: None (default)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+            <span class="s1">&#39;1: Holm-Bonferroni</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+            <span class="s1">&#39;2: Benjamini Hochberg</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span>
+            <span class="s1">&#39;3: Bonferroni&#39;</span><span class="p">)</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;correction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Benjamini Hochberg&#39;</span> <span class="k">if</span> <span class="n">opt</span><span class="o">==</span><span class="s1">&#39;2&#39;</span> <span class="k">else</span> <span class="p">(</span> <span class="s1">&#39;Bonferroni&#39;</span> <span class="k">if</span> <span class="n">opt</span><span class="o">==</span><span class="s1">&#39;3&#39;</span> <span class="k">else</span> <span class="p">(</span> <span class="s1">&#39;Holm-Bonferroni&#39;</span> <span class="k">if</span> <span class="n">opt</span><span class="o">==</span><span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span><span class="p">))</span>
+
+        <span class="c1"># input p_value</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select max p-value (default:0.05):&#39;</span><span class="p">)</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">maxp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">maxp</span> <span class="o">=</span> <span class="mf">0.05</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;maxp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">maxp</span>
+
+        <span class="c1"># Filters depend on the service and widget being used for enrichment</span>
+        <span class="n">filterNames</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;gene_pathway_enrichment&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;All&#39;</span><span class="p">,</span> <span class="s1">&#39;KEGG Pathway&#39;</span><span class="p">,</span> <span class="s1">&#39;Reactome&#39;</span><span class="p">,</span> <span class="s1">&#39;NCI Pathway Interaction Database&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;gene_ipc_enrichment&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;None&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;gene_go_enrichment&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;biological_process&#39;</span><span class="p">,</span> <span class="s1">&#39;cellular_component&#39;</span><span class="p">,</span> <span class="s1">&#39;molecular_function&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;pathway_enrichment&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;All&#39;</span><span class="p">,</span> <span class="s1">&#39;KEGG pathways data set&#39;</span><span class="p">,</span> <span class="s1">&#39;Reactome data set&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;go_enrichment_for_gene&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;biological_process&#39;</span><span class="p">,</span> <span class="s1">&#39;cellular_component&#39;</span><span class="p">,</span><span class="s1">&#39; molecular_function&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select Filter:&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">fn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filterNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;widget&#39;</span><span class="p">]]):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span><span class="n">fn</span><span class="p">)</span> <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">opt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filterNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;widget&#39;</span><span class="p">]][</span><span class="n">opt</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;filter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filterNames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_serviceOpts</span><span class="p">[</span><span class="s1">&#39;widget&#39;</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="ClusteringInspector.load_genes_file"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.load_genes_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_genes_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load a file with stored gene results information.</span>
+
+<span class="sd">        The provided file should be the one generated to save gene information</span>
+<span class="sd">        during an unweighed or weighted clustering experiment.</span>
+
+<span class="sd">        :param str file: The file with the genes information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;GENEID&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.load_clusters_file"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.load_clusters_file">[docs]</a>    <span class="k">def</span> <span class="nf">load_clusters_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load a file with stored cluster results information.</span>
+
+<span class="sd">        The provided file should be the one generated to save cluster information</span>
+<span class="sd">        during an unweighed or weighted clustering experiment.</span>
+
+<span class="sd">        :param str file: The file with the cluster information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;clu_id&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.pathways_to_csv"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.pathways_to_csv">[docs]</a>    <span class="k">def</span> <span class="nf">pathways_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save the current _pathways DataFrame to a csv file</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># drop the sum column from the DF</span>
+        <span class="k">if</span> <span class="s1">&#39;sum&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="p">[</span><span class="s1">&#39;Avg_P-value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="p">[</span><span class="s1">&#39;sum&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="p">[</span><span class="s1">&#39;Count&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sum&#39;</span><span class="p">],</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Sort the DataFrame by descending count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Count&#39;</span><span class="p">,</span> <span class="s1">&#39;Avg_P-value&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Name of output file for Enrichment results: &#39;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;results/&#39;</span><span class="o">+</span><span class="n">out</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;results/&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">out</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span> <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">-</span><span class="mi">4</span> <span class="k">else</span> <span class="n">out</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_serviceOpts</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pathways</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.set_hasClusterDetails"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.set_hasClusterDetails">[docs]</a>    <span class="k">def</span> <span class="nf">set_hasClusterDetails</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set the value of _hasClusterDetails</span>
+
+<span class="sd">        :param bool value: The value to set the parameter</span>
+<span class="sd">        :return bool: Whether the value was updated or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Value needs to be  &lt;class &#39;bool&#39;&gt;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hasClusterDetails</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ClusteringInspector.set_isRandom"><a class="viewcode-back" href="../clustering_inspector.html#clustering_inspector.ClusteringInspector.set_isRandom">[docs]</a>    <span class="k">def</span> <span class="nf">set_isRandom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set the value of the _isRandom parameter</span>
+
+<span class="sd">        :param bool value: The value to set the parameter</span>
+<span class="sd">        :return bool: Whether the value was updated or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Value needs to be &lt;class &#39;bool&#39;&gt;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isRandom</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">split_genes_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># we split the content that relates to ids from the one related to</span>
+        <span class="c1"># ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clusters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s1">&#39;clu_id&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s1">&#39;clu_size&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Determine if the results come from a single or a random clustering result</span>
+        <span class="k">if</span> <span class="s1">&#39;clu_size_0&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_isRandom</span> <span class="o">=</span> <span class="kc">True</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ATTAIN 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

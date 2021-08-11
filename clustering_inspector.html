@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Clustering Inspector &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Jupyter Notebooks List" href="jupyter_notebooks.html" />
+    <link rel="prev" title="ATTAIN Network" href="attain_network.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="jupyter_notebooks.html" title="Jupyter Notebooks List"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="attain_network.html" title="ATTAIN Network"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-clustering_inspector">
+<span id="clustering-inspector"></span><h1>Clustering Inspector<a class="headerlink" href="#module-clustering_inspector" title="Permalink to this headline">¶</a></h1>
+<p>Convenience class used to review the results gathered from weighted
+and unweighted clustering routines.</p>
+<p>Together with reviewing the results of clustering experiments, it is possible to
+perform pathway enrichment (through TargetMine’s API) for the cluster containing
+a user specified gene. The enrichment results are only displayed to screen.</p>
+<dl class="class">
+<dt id="clustering_inspector.ClusteringInspector">
+<em class="property">class </em><code class="sig-prename descclassname">clustering_inspector.</code><code class="sig-name descname">ClusteringInspector</code><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convinience class used to inspect clustering results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_rand</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Random state of the Network</p></li>
+<li><p><strong>_genes</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store the genes of the network</p></li>
+<li><p><strong>_edges</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store the edges of the network</p></li>
+<li><p><strong>_clusters</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store clusters information</p></li>
+<li><p><strong>_pathways</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store enrichment results</p></li>
+<li><p><strong>_service</strong> (<em>Service</em>) – A TargetMine service object used for enrichment analysis</p></li>
+<li><p><strong>_serviceOpts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – The options used for Enrichment throught the TargetMine API</p></li>
+<li><p><strong>_isRandom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Are we looking at clustering results from a randomized experiment</p></li>
+<li><p><strong>_hasClusterDetails</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether cluster information are provided as separate file</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an empty instance of Clustering Inspector</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.add_enriched_pathways">
+<code class="sig-name descname">add_enriched_pathways</code><span class="sig-paren">(</span><em class="sig-param">paths</em>, <em class="sig-param">cid=None</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.add_enriched_pathways"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.add_enriched_pathways" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store a list of enriched pahtways in the _pathways DataFrame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int</strong> (<em>cid</em>) – The cluster id that produced the enrichment</p></li>
+<li><p><strong>paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – the list of pathways to store</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If true, print the _pahtways DF to stardar output</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.calculate_enrichment">
+<code class="sig-name descname">calculate_enrichment</code><span class="sig-paren">(</span><em class="sig-param">genes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.calculate_enrichment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.calculate_enrichment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform pathway enrichment for the given genes using current options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – A list of GeneIDs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The list of enriched pathways found using TargetMine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.clear_pathways">
+<code class="sig-name descname">clear_pathways</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.clear_pathways"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.clear_pathways" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-initialize the Pathways DataFrame</p>
+<p>Clear the DataFrame where enrichment results are stored. Leaves it empty
+with only the required columns defined</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.display_clustering_statistics">
+<code class="sig-name descname">display_clustering_statistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.display_clustering_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.display_clustering_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print summary statistics of the clustering process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.display_largest_clusters">
+<code class="sig-name descname">display_largest_clusters</code><span class="sig-paren">(</span><em class="sig-param">size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.display_largest_clusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.display_largest_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print to standard output the largest clusters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of largest clusters to print</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_cluster_by_gene">
+<code class="sig-name descname">get_cluster_by_gene</code><span class="sig-paren">(</span><em class="sig-param">geneID</em>, <em class="sig-param">run=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_cluster_by_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_cluster_by_gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of genes in the same cluster as geneID
+Overrides AttainNetwork</p>
+<p>Given the id of a gene, return the list of all genes that belong to the
+same cluster as the given gene.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geneID</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The id of the gene whose cluster we want to access</p></li>
+<li><p><strong>run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The specific clustering run we want to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return list</dt>
+<dd class="field-even"><p>The list of genes in the same cluster as the given gene.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_gene">
+<code class="sig-name descname">get_gene</code><span class="sig-paren">(</span><em class="sig-param">id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide access to all the information currently available for a gene
+Overrides AttainNetwork</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The ID of the gene to return</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The information stored in the network for the given gene</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_hasClusterDetails">
+<code class="sig-name descname">get_hasClusterDetails</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_hasClusterDetails"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_hasClusterDetails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value of _hasClusterDetails</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return bool</dt>
+<dd class="field-odd"><p>The value of _hasClusterDetails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_isRandom">
+<code class="sig-name descname">get_isRandom</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_isRandom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_isRandom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value of _isRandom</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return bool</dt>
+<dd class="field-odd"><p>The value of _isRandom</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_number_of_clusters">
+<code class="sig-name descname">get_number_of_clusters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_number_of_clusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_number_of_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of clusters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of rows in the _clusters dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_number_of_runs">
+<code class="sig-name descname">get_number_of_runs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_number_of_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_number_of_runs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_service">
+<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide access to the enrichment service</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The enrichment service initialized or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.get_serviceOpts">
+<code class="sig-name descname">get_serviceOpts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.get_serviceOpts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.get_serviceOpts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide access to Pathway Enrichment Options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The dictionary with the current options for pathway enrichment or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.init_enrichment_opts">
+<code class="sig-name descname">init_enrichment_opts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.init_enrichment_opts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.init_enrichment_opts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the options required for the enrichment of clusters.</p>
+<p>The enrichment options depend on the service used and the type of
+enrichment.
+Configuration options are provided based on the available options
+for the different services.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.init_service">
+<code class="sig-name descname">init_service</code><span class="sig-paren">(</span><em class="sig-param">service=None</em>, <em class="sig-param">user=None</em>, <em class="sig-param">pwd=None</em>, <em class="sig-param">token=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.init_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.init_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inialize the Service used for results enrichment</p>
+<p>In order to perform enrichment of the clusters found within the network,
+we need to connect to TargetMine’s enrichment services. These are
+provided, for registered users, through a public API.
+This method uses the provided user and password credentials to create a
+service that can later be used to perform cluster enrichment.
+Currently, two services are available, both based on the InterMine
+platform: TargetMine (for Human PPI clustering results) and FlyMine
+(for Drosophila PPI clustering results).
+It also defines the default options used to perform cluster enrichment
+through the TargetMine service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The enrichment service to use</p></li>
+<li><p><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The user name registered in the service</p></li>
+<li><p><strong>pwd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The password for the given user</p></li>
+<li><p><strong>token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Alternative to user/pwd login, the token registered to use a given account in the corresponding service</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.load_clusters_file">
+<code class="sig-name descname">load_clusters_file</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.load_clusters_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.load_clusters_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a file with stored cluster results information.</p>
+<p>The provided file should be the one generated to save cluster information
+during an unweighed or weighted clustering experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The file with the cluster information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.load_genes_file">
+<code class="sig-name descname">load_genes_file</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.load_genes_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.load_genes_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a file with stored gene results information.</p>
+<p>The provided file should be the one generated to save gene information
+during an unweighed or weighted clustering experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The file with the genes information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.pathways_to_csv">
+<code class="sig-name descname">pathways_to_csv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.pathways_to_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.pathways_to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the current _pathways DataFrame to a csv file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.set_hasClusterDetails">
+<code class="sig-name descname">set_hasClusterDetails</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.set_hasClusterDetails"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.set_hasClusterDetails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of _hasClusterDetails</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The value to set the parameter</p>
+</dd>
+<dt class="field-even">Return bool</dt>
+<dd class="field-even"><p>Whether the value was updated or not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_inspector.ClusteringInspector.set_isRandom">
+<code class="sig-name descname">set_isRandom</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_inspector.html#ClusteringInspector.set_isRandom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_inspector.ClusteringInspector.set_isRandom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of the _isRandom parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The value to set the parameter</p>
+</dd>
+<dt class="field-even">Return bool</dt>
+<dd class="field-even"><p>Whether the value was updated or not</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="attain_network.html"
+                        title="previous chapter">ATTAIN Network</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="jupyter_notebooks.html"
+                        title="next chapter">Jupyter Notebooks List</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/clustering_inspector.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="jupyter_notebooks.html" title="Jupyter Notebooks List"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="attain_network.html" title="ATTAIN Network"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

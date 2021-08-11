@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Data Format &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Network Generation and Clustering" href="tutorial_clustering.html" />
+    <link rel="prev" title="Code and Environment Setting" href="tutorial_envSetting.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial_clustering.html" title="Network Generation and Clustering"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_envSetting.html" title="Code and Environment Setting"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="data-format">
+<h1>Data Format<a class="headerlink" href="#data-format" title="Permalink to this headline">¶</a></h1>
+<p>Two different types of files are required as input for our scripts. The first
+defines the structure of a PPI network; whilst the second contains the expression
+values associated for a given gene in a siRNA screen.</p>
+<p>In the following, we provide details on the specific files included in our work;
+however, any other combination of files, provided that they follow the same
+format, should allow the user to perform its own studies.</p>
+<div class="section" id="network-definition">
+<h2>Network definition<a class="headerlink" href="#network-definition" title="Permalink to this headline">¶</a></h2>
+<p>A network is defined via a plain text data file that contains a list of
+interactions. Each line of the file contains a tab separated pair of integer
+numbers that define a single interaction, found between a pair of nodes. Each
+number corresponds to a gene identifier (NCBI GeneID), unique to each gene.</p>
+<p>Included in the <code class="docutils literal notranslate"><span class="pre">data</span></code> folder of the distributed code is the file that
+describes de <em>Chuang PPI Network</em>, namely <code class="docutils literal notranslate"><span class="pre">network1_chuang.txt</span></code>. The first few
+lines of this file are as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">6927  55281   HNF1A   TMEM140</span>
+<span class="go">164   8906    AP1G1   AP1G2</span>
+<span class="go">3689  11082   ITGB2   ESM1</span>
+<span class="go">57326 151871  PBXIP1  DPPA2</span>
+<span class="go">5336  23236   PLCG2   PLCB1</span>
+</pre></div>
+</div>
+<p>Each line is interpreted as the definition of an undirected edge between two
+nodes, for example, the first line indicates that there is an edge between gene
+HNF1A (id: 6927) and gene TMEM140 (id:55281).</p>
+</div>
+<div class="section" id="network-weights">
+<span id="id1"></span><h2>Network Weights<a class="headerlink" href="#network-weights" title="Permalink to this headline">¶</a></h2>
+<p>The MCL (Markov Clustering) algorithm is based in the idea that the strength (or
+weights) of the links in the network directly influence the way in which the nodes
+can be clustered together, thus in order to use the algorithm, we need to provide our
+network with some information regarding the edges’ weights.</p>
+<p>In our experiments, the weights of the edges are derived from siRNA screen readouts
+measured at the nodes. Included in the <code class="docutils literal notranslate"><span class="pre">data</span></code> folder of the distributed code is
+file <code class="docutils literal notranslate"><span class="pre">weights1_APP_siRNA.xlsx</span></code> that includes values for four distinct Amylodoigenic
+<img class="math" src="_images/math/f2b0048261398f1986b2a4778c69de9d2415a029.png" alt="A\beta"/> peptides, plus cell viability.</p>
+<p>Each row of the table contains the information for a single gene. A gene identifier
+(that should match the one used in the network definition file) is included in
+column <code class="docutils literal notranslate"><span class="pre">GENEID</span></code>, whilst values for each readout are given in columns <code class="docutils literal notranslate"><span class="pre">VIA</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AB40</span></code>, <code class="docutils literal notranslate"><span class="pre">AB42</span></code>, <code class="docutils literal notranslate"><span class="pre">SAPPA</span></code> and <code class="docutils literal notranslate"><span class="pre">SAPPB</span></code>, respectively.</p>
+<p>Notice that, in order to use different weight information, a similar file needs
+to be provided. In such case the <code class="docutils literal notranslate"><span class="pre">GENEID</span></code> has to be included in the file, while
+additional rows for readouts can be named arbitrarily.</p>
+<p>The first lines of file <code class="docutils literal notranslate"><span class="pre">weights1_APP_siRNA.xlsx</span></code> are as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">GENEID  VIA           AB40            AB42            SAPPA           SAPPB</span>
+<span class="go">1       -0.293511677  0.509799083     0.063421219     1.624921978     1.312808441</span>
+<span class="go">2       -0.475129933  0.757599276     1.043316923     0.266479941     0.49134353</span>
+<span class="go">9       2.377759282   -1.213443729    -1.33048629     -0.458606909    -1.47113369</span>
+<span class="go">10      -0.679732748  -0.415496912    -0.230574096    0.519560455     -0.136712419</span>
+<span class="go">12      0.505662562   0.191583755     0.569690918     1.248911281     1.476637361</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Although the <code class="docutils literal notranslate"><span class="pre">GENEID</span></code> used in both files is the same, that does not mean
+there is a direct match between all genes in both files, this is, there might
+be genes that, even when being part of the network, might not have an
+associated list of readout values.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data Format</a><ul>
+<li><a class="reference internal" href="#network-definition">Network definition</a></li>
+<li><a class="reference internal" href="#network-weights">Network Weights</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial_envSetting.html"
+                        title="previous chapter">Code and Environment Setting</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial_clustering.html"
+                        title="next chapter">Network Generation and Clustering</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial_clustering.html" title="Network Generation and Clustering"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_envSetting.html" title="Code and Environment Setting"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cluster Inspection &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ATTAIN Network" href="attain_network.html" />
+    <link rel="prev" title="Randomly Weighted Clustering" href="randomWeight_clustering.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="attain_network.html" title="ATTAIN Network"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="randomWeight_clustering.html" title="Randomly Weighted Clustering"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cluster_inspection">
+<span id="cluster-inspection"></span><h1>Cluster Inspection<a class="headerlink" href="#module-cluster_inspection" title="Permalink to this headline">¶</a></h1>
+<p>Convenience script provided to inspect the results produced by unweighted, weighted
+randomly weighted clustering experiments.</p>
+<p>The script also allows the user to perform different types of cluster enrichment.
+The enrichment is done on the cluster containing a single, user defined, target 
+gene. Enrichment results can be saved to CSV files.</p>
+<p>Enrichment is provided through TargetMine’s API (<a class="reference external" href="https://mizuguchilab.org/targetmine">https://mizuguchilab.org/targetmine</a>).</p>
+<div class="section" id="script">
+<h2>Script<a class="headerlink" href="#script" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># Initialize a parser for arguments provided through the command line</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Review clustering results and perform enrichment on cluster(s).&#39;</span>
+    <span class="p">)</span>
+    <span class="c1"># add an argument to handle the input file</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,</span> <span class="s1">&#39;--gene&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;CSV file containing gene information&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--cluster&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;CSV file containing cluster information &lt;optional&gt;&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># Create a new instance of mcl cluster inspector</span>
+    <span class="n">ci</span> <span class="o">=</span> <span class="n">ClusteringInspector</span><span class="p">()</span>
+
+    <span class="c1"># Finish execution if no data is provided</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">gene</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;A file containing gene information is required for execution:&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">ci</span><span class="o">.</span><span class="n">load_genes_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">gene</span><span class="p">)</span>
+
+    <span class="c1"># If a cluster file was provided, load it. Otherwise, request it again</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">cluster</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extracting clusters from gene file&#39;</span><span class="p">)</span>
+        <span class="n">ci</span><span class="o">.</span><span class="n">split_genes_information</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ci</span><span class="o">.</span><span class="n">load_clusters_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">cluster</span><span class="p">)</span>
+        <span class="n">ci</span><span class="o">.</span><span class="n">set_hasClusterDetails</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># If specific cluster information was provided, we display some</span>
+        <span class="c1"># general information about them</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Number of clusters: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ci</span><span class="o">.</span><span class="n">get_number_of_clusters</span><span class="p">())</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Largest Clusters&#39;</span> <span class="p">)</span>
+        <span class="n">ci</span><span class="o">.</span><span class="n">display_largest_clusters</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Clusters&#39; Statistics&quot;</span><span class="p">)</span>
+        <span class="n">ci</span><span class="o">.</span><span class="n">display_clustering_statistics</span><span class="p">()</span>
+
+    <span class="c1"># Initialize the service required for targetmine enrichment</span>
+    <span class="c1"># The token used is associated to the Demo Account set up in server</span>
+    <span class="c1"># targetmine.mizuguchilab.org/tm2008 for submission purposes. Update to your</span>
+    <span class="c1"># own token or user/password to access your own private account.</span>
+    <span class="n">ci</span><span class="o">.</span><span class="n">init_service</span><span class="p">()</span>
+
+    <span class="c1"># Print</span>
+    <span class="k">if</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_isRandom</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Review results from multiple, randomly weighted, clustering results&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Review results from a single clustering result&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Let the user review and save the results of the clustering</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Input a single Gene ID to inspect its cluster.&#39;</span><span class="p">)</span>
+    <span class="n">gId</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;GeneID (-1 to exit)? &#39;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">gId</span> <span class="o">!=</span> <span class="s2">&quot;-1&quot;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># retrieve the gene&#39;s information</span>
+            <span class="n">gId</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gId</span><span class="p">)</span> <span class="k">if</span> <span class="n">gId</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">gId</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_gene</span><span class="p">(</span><span class="n">gId</span><span class="p">)</span>
+            <span class="c1"># If there are multiple clustering results for a single gene, print</span>
+            <span class="c1"># summary values</span>
+            <span class="k">if</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_isRandom</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">describe</span><span class="p">())</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span><span class="c1">#&#39;Mode: {0}&#39;.format(info.mode()))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Median: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">median</span><span class="p">()))</span>
+            <span class="c1"># Otherwise, print the entire info</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+            <span class="c1"># Should we perform gene enrichment on the selected cluster</span>
+            <span class="n">enrich</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Perform gene enrichment? (y/n) &#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">enrich</span> <span class="ow">and</span> <span class="n">enrich</span><span class="o">==</span><span class="s2">&quot;y&quot;</span> <span class="ow">and</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_service</span><span class="p">()</span> <span class="p">:</span>
+                <span class="k">if</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_isRandom</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Enrichment will be performed for each run or randomized weight clustering.&#39;</span><span class="p">)</span>
+
+                <span class="c1"># Update enrichment paramenters</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_serviceOpts</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select enrichment options:&#39;</span><span class="p">)</span>
+                    <span class="n">ci</span><span class="o">.</span><span class="n">init_enrichment_opts</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">opt</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Modify enrichment options? (y/n) &#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">opt</span> <span class="ow">and</span> <span class="n">opt</span><span class="o">==</span><span class="s1">&#39;y&#39;</span><span class="p">:</span> 
+                        <span class="n">ci</span><span class="o">.</span><span class="n">init_enrichment_opts</span><span class="p">()</span>
+                    
+
+                <span class="c1"># Print enrichment options</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Calculate Enrichment using: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ci</span><span class="o">.</span><span class="n">get_serviceOpts</span><span class="p">()))</span>
+                <span class="n">ci</span><span class="o">.</span><span class="n">clear_pathways</span><span class="p">()</span>
+
+                <span class="c1"># Determine the nunmer of times we will perform enrichment</span>
+                <span class="n">runs</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_number_of_runs</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">runs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># retrieve the cluster, perform enrichment and save results</span>
+                    <span class="n">cluster</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_cluster_by_gene</span><span class="p">(</span><span class="n">gId</span><span class="p">)</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">calculate_enrichment</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                    <span class="n">ci</span><span class="o">.</span><span class="n">add_enriched_pathways</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># same as before, but for each run</span>
+                    <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
+                        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">Enrichment results for Run </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run</span><span class="p">))</span>
+                                <span class="n">genes</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">get_cluster_by_gene</span><span class="p">(</span><span class="n">gId</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+                                <span class="n">result</span> <span class="o">=</span> <span class="n">ci</span><span class="o">.</span><span class="n">calculate_enrichment</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
+                                <span class="n">ci</span><span class="o">.</span><span class="n">add_enriched_pathways</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                                <span class="k">break</span>
+                            <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Timeout Error on run&#39;</span><span class="p">,</span><span class="n">run</span><span class="p">,</span><span class="s1">&#39;retrying in 5 seconds&#39;</span><span class="p">)</span>
+                                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                            <span class="k">except</span> <span class="n">URLError</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;URL Error on run&#39;</span><span class="p">,</span><span class="n">run</span><span class="p">,</span><span class="s1">&#39;retrying in 5 seconds&#39;</span><span class="p">)</span>
+                                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                                <span class="n">exception_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;An error ocurred on run&#39;</span><span class="p">,</span><span class="n">run</span><span class="p">,</span><span class="s1">&#39;retrying in 5 seconds&#39;</span><span class="p">)</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="n">exception_type</span><span class="p">)</span>
+                                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+                <span class="c1"># save enrichment results</span>
+                <span class="n">save</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Save enrichment results (y/n)? &#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">save</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">save</span> <span class="ow">and</span> <span class="n">save</span><span class="o">==</span><span class="s1">&#39;y&#39;</span><span class="p">:</span>
+                    <span class="n">ci</span><span class="o">.</span><span class="n">pathways_to_csv</span><span class="p">()</span>
+
+        <span class="c1"># Catch the cases where the gene is not part of the list</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Key Error: Gene not found&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Prompt for a new gene</span>
+        <span class="n">gId</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;GeneID (-1 to exit)? &quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cluster Inspection</a><ul>
+<li><a class="reference internal" href="#script">Script</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="randomWeight_clustering.html"
+                        title="previous chapter">Randomly Weighted Clustering</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="attain_network.html"
+                        title="next chapter">ATTAIN Network</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cluster_inspection.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="attain_network.html" title="ATTAIN Network"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="randomWeight_clustering.html" title="Randomly Weighted Clustering"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

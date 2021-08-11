@@ -1,0 +1,78 @@
+.. mcl documentation master file, created by
+   sphinx-quickstart on Wed Dec 12 12:01:59 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+.. toctree::
+  :hidden:
+
+  Code and Environment Setting <tutorial_envSetting>
+  Data Format <tutorial_data>
+  Network Generation and Clustering <tutorial_clustering>
+  Cluster Revision and Enrichment <tutorial_enrichment>
+  unweighted_clustering.py <unweighted_clustering>
+  weighted_clustering.py <weighted_clustering>
+  randomWeight_clustering.py <randomWeight_clustering>
+  cluster_inspection.py <cluster_inspection>
+  attain_network.py <attain_network>
+  clustering_inspector.py <clustering_inspector>
+  Jupyter notebooks <jupyter_notebooks>
+  Figures 2 and 3 <notebooks/fig2-3>
+  Figures 4 to 6 <notebooks/fig4to6>
+  Figures 7 and 10 <notebooks/fig7and10>
+  Figures 8, 9 and 11 <notebooks/fig89and11>
+  Figure 12 <notebooks/fig12>
+
+Welcome to ATTAIN's documentation!
+==================================
+This site provides supporting details for the execution of the code accompanying
+the work presented in the article ''The identification of biologically relevant
+protein clusters from siRNA weighted Protein-Protein Interaction Networks.'' by
+Miguel L. Camargo, Rodolfo S. Allendes Osorio and Kenji Mizuguchi.
+
+.. note:: ATTAIN is derived from the title of the article as follows:
+  The identification of biologicAlly relevanT proTein clusters from sirnA
+  weighted protein-protein Interaction Networks.
+
+As part of the documentation, we include a detailed tutorial on how to prepare
+your system, execute and replicate all the results listed in the article;
+together with the documentation of the code itself.
+
+Tutorial
+--------
+
+The following pages will guide you through the replication of all the results
+highlighted in the original article, starting with the installation of the required
+software.
+
+We hope this content will also serve as guide for users intending to use our
+implementation for their own analysis.
+
+This tutorial is divided into the following sections:
+
+#. :doc:`Code and Environment Setting <tutorial_envSetting>`
+#. :doc:`Data Format <tutorial_data>`
+#. :doc:`Network Generation and Clustering <tutorial_clustering>`
+#. :doc:`Cluster Revision and Enrichment <tutorial_enrichment>`
+
+Code
+----
+
+The general method described in our article is supported by the implementation
+of the following Python scrips:
+
+* :doc:`unweighted_clustering.py <unweighted_clustering>`
+* :doc:`weighted_clustering.py <weighted_clustering>`
+* :doc:`randomWeight_clustering.py <randomWeight_clustering>`
+* :doc:`cluster_inspection.py <cluster_inspection>`
+
+The documentation for the classes consumed by the all the scripts in our
+implementation is as follows:
+
+* :doc:`ATTAIN Network <attain_network>`
+* :doc:`Clustering Inspector <clustering_inspector>`
+
+Finally, we also provide a set of supplementary Jupyter Notebooks. These were
+used for the production of (nearly) all the figures included in the main article:
+
+* :doc:`Additional Jupyter Notebooks <jupyter_notebooks>`

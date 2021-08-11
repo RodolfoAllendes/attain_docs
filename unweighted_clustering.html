@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unweighted Clustering &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Weighted Clustering" href="weighted_clustering.html" />
+    <link rel="prev" title="Cluster Revision and Enrichment" href="tutorial_enrichment.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="weighted_clustering.html" title="Weighted Clustering"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_enrichment.html" title="Cluster Revision and Enrichment"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-unweighted_clustering">
+<span id="unweighted-clustering"></span><h1>Unweighted Clustering<a class="headerlink" href="#module-unweighted_clustering" title="Permalink to this headline">¶</a></h1>
+<p>Script used to perform unweighted clustering of a network using the MCL algorithm. 
+Note that, since the implementation of MCL requires that all edges in the network 
+to have a designated weight value, we use a default value of 1 for all edges.</p>
+<div class="section" id="script">
+<h2>Script<a class="headerlink" href="#script" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># initialize a parser for the arguments</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Perform Unweighted MCL Clustering on a Network.&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># add an argument to handle edge files</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s2">&quot;--edges&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File where interactions (edges) data is stored.&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># when no edges information is provided by the user, use a default</span>
+    <span class="c1"># interactions file</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using default interactions...&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="s2">&quot;./data/network1_chuang.txt&quot;</span>
+
+    <span class="c1"># Initialize a network using the interactions file</span>
+    <span class="n">net</span> <span class="o">=</span> <span class="n">attain</span><span class="o">.</span><span class="n">AttainNetwork</span><span class="p">()</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">init_edges</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">init_genes</span><span class="p">()</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">init_gene_edge_mapping</span><span class="p">()</span>
+
+    <span class="c1"># Show details of the network on screen</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">print_details</span><span class="p">()</span>
+
+    <span class="c1"># Perform unweighted clustering on the network</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">unweighted_clustering</span><span class="p">()</span>
+
+    <span class="c1"># Save clustering results to files or print them on screen</span>
+    <span class="n">save</span> <span class="o">=</span> <span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Save clustering results? (y/n): &quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save</span> <span class="ow">and</span> <span class="p">(</span><span class="n">save</span><span class="o">==</span><span class="s1">&#39;y&#39;</span> <span class="ow">or</span> <span class="n">save</span> <span class="o">==</span><span class="s1">&#39;yes&#39;</span><span class="p">):</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">([</span><span class="s1">&#39;idx&#39;</span><span class="p">])</span> <span class="c1"># remove the idx, as it provides no extra information</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">to_csv</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File not generated&quot;</span><span class="p">)</span>
+        <span class="n">save</span> <span class="o">=</span> <span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Print clustering results to screen? (y/n): &quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">save</span> <span class="ow">and</span> <span class="p">(</span><span class="n">save</span><span class="o">==</span><span class="s1">&#39;y&#39;</span> <span class="ow">or</span> <span class="n">save</span><span class="o">==</span><span class="s1">&#39;yes&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">mcl</span><span class="o">.</span><span class="n">get_clusters</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Unweighted Clustering</a><ul>
+<li><a class="reference internal" href="#script">Script</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial_enrichment.html"
+                        title="previous chapter">Cluster Revision and Enrichment</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="weighted_clustering.html"
+                        title="next chapter">Weighted Clustering</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/unweighted_clustering.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="weighted_clustering.html" title="Weighted Clustering"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_enrichment.html" title="Cluster Revision and Enrichment"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

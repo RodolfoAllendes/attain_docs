@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Network Generation and Clustering &#8212; ATTAIN 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cluster Revision and Enrichment" href="tutorial_enrichment.html" />
+    <link rel="prev" title="Data Format" href="tutorial_data.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial_enrichment.html" title="Cluster Revision and Enrichment"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_data.html" title="Data Format"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="network-generation-and-clustering">
+<h1>Network Generation and Clustering<a class="headerlink" href="#network-generation-and-clustering" title="Permalink to this headline">¶</a></h1>
+<p>In the following sections we provide insight into how to use the scripts included
+in our distribution to generate and perform the clustering of the three different
+types of networks relevant for our method, namely, unweighted networks, weighted
+networks and randomly weighted networks.</p>
+<div class="section" id="unweighted-clustering">
+<h2>Unweighted Clustering<a class="headerlink" href="#unweighted-clustering" title="Permalink to this headline">¶</a></h2>
+<p>The first step in the workflow is to perform an <em>unweighted</em> clustering of the
+network. For this, we use the functionality provided by file
+<a class="reference internal" href="unweighted_clustering.html"><span class="doc">unweighted_clustering.py</span></a>.</p>
+<p>Execution of the code is as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(attain)</span> <span class="go">~attain$ python unweighted_clustering.py &lt;options&gt;</span>
+
+<span class="go">-h(--help)</span>
+<span class="go">  Show the help and finish execution</span>
+<span class="go">-e(--edges)  file</span>
+<span class="go">  Indicate the file where the interactions (edges) of the network are stored</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice that, in order to execute the code in the command line version, the
+anaconda environment previously defined for Attain has to be active. Remember
+that, when active, the name of the environment will be part of the console’s
+command prompt.</p>
+</div>
+<p>When executed without providing an interactions file, the unweighted clustering
+routine is ran using <code class="docutils literal notranslate"><span class="pre">data/network1_chuang.txt</span></code> (in the provided bundle, the
+file is located inside the ‘data’ folder).</p>
+<p>The script automatically performs the clustering of the network and request the
+user to save its output to two different output files. If no saving is selected,
+the list of clusters can be printed to standard output.</p>
+<p>We saved the results of the unweighted clustering of the Chuang PPI Network to
+files: <code class="docutils literal notranslate"><span class="pre">chuang_unw_gene.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">chuang_unw_cluster.csv</span></code>, both included
+in the <code class="docutils literal notranslate"><span class="pre">results</span></code> folder of our distributed code. The first lines of both files
+are as follow:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span>chuang_unw_gene.csv
+<span class="go">GENEID  clu_size  clu_id</span>
+<span class="go">  6927      1876       0</span>
+<span class="go">   164        13       1</span>
+<span class="go">  3689        10       2</span>
+<span class="go"> 57326      1876       0</span>
+<span class="go">  5336        88       3</span>
+
+<span class="gp">$</span>chuang_unw_cluster.csv
+<span class="go">clu_id  clu_size  clu_genes</span>
+<span class="go">     0      1876  [14, 33, ..., 100132341]</span>
+<span class="go">    11       140  [987, 1591, ..., 166863]</span>
+<span class="go">     3        88  [558, 868, ..., 259215]</span>
+<span class="go">    38        75  [421, 768, ..., 402120]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="weighted-clustering">
+<h2>Weighted Clustering<a class="headerlink" href="#weighted-clustering" title="Permalink to this headline">¶</a></h2>
+<p>The second step in the workflow is to perform the clustering of the same network,
+now augmented with the information extracted from the siRNA screens.</p>
+<p>The script to perform an automated run of <em>weighted_clustering</em> is included in
+the file <a class="reference internal" href="weighted_clustering.html"><span class="doc">weighted_clustering.py</span></a>.</p>
+<p>Execution of the code should be performed as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(attain)</span> <span class="go">~attain$ python weighted_clustering.py &lt;options&gt;</span>
+
+<span class="go">-h(--help)</span>
+<span class="go">  Show the help and finish execution</span>
+<span class="go">-e(--edges)</span>
+<span class="go">  Indicate the file where the interactions (edges) of the network are stored</span>
+<span class="go">-w(--weights)</span>
+<span class="go">  Indicate the file where the weights (of each node) of the network are stored</span>
+</pre></div>
+</div>
+<p>By default, the script will look for <code class="docutils literal notranslate"><span class="pre">data/network1_chuang.txt</span></code> when no edges
+file is provided, and <code class="docutils literal notranslate"><span class="pre">data/weights1_APP_siRNA.xlsx</span></code> when no weights file is
+provided.</p>
+<p>Upon loading, the user is requested the column of the weights file to be used
+by the script. Next, weights are assigned according to the following steps:</p>
+<ol class="arabic simple">
+<li><p>Retrieve from the siRNA screen the value associated to each gene in the network;</p></li>
+<li><p>Replace the negative values found by their absolute value;</p></li>
+<li><p>For nodes that are not found in the siRNA screen, use the median value of
+all other nodes in the network; and</p></li>
+<li><p>Define the weight of every edge in the network as the sum of the weights of
+its source and target nodes.</p></li>
+</ol>
+<p>For implementation details of the previous method, see functions
+<a class="reference internal" href="attain_network.html#attain_network.AttainNetwork.add_gene_weights" title="attain_network.AttainNetwork.add_gene_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_gene_weights()</span></code></a>
+and <a class="reference internal" href="attain_network.html#attain_network.AttainNetwork.init_edges_weights" title="attain_network.AttainNetwork.init_edges_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">init_edges_weights()</span></code></a>
+of class <a class="reference internal" href="attain_network.html#attain_network.AttainNetwork" title="attain_network.AttainNetwork"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttainNetwork</span></code></a>.</p>
+<p>As with the unweighted case, once the clustering has been completed, the user is
+able to save the results to two different files. Included in the <code class="docutils literal notranslate"><span class="pre">results</span></code> folder
+of our code distribution, are the files obtained when clustering the Chuang PPI
+Network using each of the five available siRNA readouts. Files for each readout
+are named <code class="docutils literal notranslate"><span class="pre">chuang_wgt_&lt;readout&gt;_gene.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">chuang_wgt_&lt;readout&gt;_cluster.csv</span></code>.</p>
+</div>
+<div class="section" id="randomly-weighted-network-clustering">
+<h2>Randomly Weighted Network Clustering<a class="headerlink" href="#randomly-weighted-network-clustering" title="Permalink to this headline">¶</a></h2>
+<p>Finally, we proceed with the clustering of the network using randomly assigned
+weights to the edges. The script needed to perform a batch of automated runs of
+<em>randomly weighted clustering</em> is included in file
+<a class="reference internal" href="randomWeight_clustering.html"><span class="doc">randomWeight_clustering.py</span></a>.</p>
+<p>Execution of the code should be performed as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(attain)</span> <span class="go">~attain$ python randomWeight_clustering.py &lt;options&gt;</span>
+
+<span class="go">-h(--help)</span>
+<span class="go">  Show the help and finish execution</span>
+<span class="go">-e(--edges)</span>
+<span class="go">  Indicate the file where the interactions (edges) of the network are stored</span>
+<span class="go">-w(--weights)</span>
+<span class="go">  Indicate the file where the weights (of each node) of the network are stored</span>
+<span class="go">-i(--iterations)</span>
+<span class="go">  The number of iterations (runs) that a randomized network will be generated</span>
+<span class="go">  and clustered</span>
+<span class="go">-s(--seed)</span>
+<span class="go">  A seed (int between 0 and 2**32 -1)for the random sequence generator used to</span>
+<span class="go">  randomize the weights assigned to the nodes in the network. By providing the</span>
+<span class="go">  same value, it is possible to reproduce the clustering results</span>
+</pre></div>
+</div>
+<p>The script will use file <code class="docutils literal notranslate"><span class="pre">data/network1_Chuang.txt</span></code> if no edges information is
+provided, and file <code class="docutils literal notranslate"><span class="pre">data/weights1_APP_siRNA.xlsx</span></code> if no weights information is
+provided. Default values for number of iterations and seed are <code class="docutils literal notranslate"><span class="pre">10</span></code> and
+<code class="docutils literal notranslate"><span class="pre">187372311</span></code> respectively.</p>
+<p>As with the weighted scheme, the user is prompted to select a  single readout to
+for the randomization of weights from the ones available in the input file.</p>
+<p>Once all the iterations have been completed, the user is given the option to save
+the results to a single output file.</p>
+<p>Files that include the results for 1000 runs of randomized weighted clustering for
+each readout are provided in the <code class="docutils literal notranslate"><span class="pre">results</span></code> folder of our code distribution.
+Files are named <code class="docutils literal notranslate"><span class="pre">chuang_rand_&lt;readout&gt;_1000.csv</span></code>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Network Generation and Clustering</a><ul>
+<li><a class="reference internal" href="#unweighted-clustering">Unweighted Clustering</a></li>
+<li><a class="reference internal" href="#weighted-clustering">Weighted Clustering</a></li>
+<li><a class="reference internal" href="#randomly-weighted-network-clustering">Randomly Weighted Network Clustering</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial_data.html"
+                        title="previous chapter">Data Format</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial_enrichment.html"
+                        title="next chapter">Cluster Revision and Enrichment</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_clustering.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial_enrichment.html" title="Cluster Revision and Enrichment"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_data.html" title="Data Format"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ATTAIN 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Rodolfo Allendes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

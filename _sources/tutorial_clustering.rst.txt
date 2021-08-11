@@ -1,0 +1,154 @@
+Network Generation and Clustering
+=================================
+
+In the following sections we provide insight into how to use the scripts included
+in our distribution to generate and perform the clustering of the three different
+types of networks relevant for our method, namely, unweighted networks, weighted
+networks and randomly weighted networks.
+
+Unweighted Clustering
+---------------------
+
+The first step in the workflow is to perform an *unweighted* clustering of the
+network. For this, we use the functionality provided by file
+:doc:`unweighted_clustering.py <unweighted_clustering>`.
+
+Execution of the code is as follows:
+
+.. code-block:: console
+
+  (attain) ~attain$ python unweighted_clustering.py <options>
+
+  -h(--help)
+    Show the help and finish execution
+  -e(--edges)  file
+    Indicate the file where the interactions (edges) of the network are stored
+
+.. note::
+
+  Notice that, in order to execute the code in the command line version, the
+  anaconda environment previously defined for Attain has to be active. Remember
+  that, when active, the name of the environment will be part of the console's
+  command prompt.
+
+When executed without providing an interactions file, the unweighted clustering
+routine is ran using ``data/network1_chuang.txt`` (in the provided bundle, the
+file is located inside the 'data' folder).
+
+The script automatically performs the clustering of the network and request the
+user to save its output to two different output files. If no saving is selected, 
+the list of clusters can be printed to standard output.
+
+We saved the results of the unweighted clustering of the Chuang PPI Network to
+files: ``chuang_unw_gene.csv`` and ``chuang_unw_cluster.csv``, both included
+in the ``results`` folder of our distributed code. The first lines of both files
+are as follow:
+
+.. code-block:: console
+
+  $chuang_unw_gene.csv
+  GENEID  clu_size  clu_id
+    6927      1876       0
+     164        13       1
+    3689        10       2
+   57326      1876       0
+    5336        88       3
+
+  $chuang_unw_cluster.csv
+  clu_id  clu_size  clu_genes
+       0      1876  [14, 33, ..., 100132341]
+      11       140  [987, 1591, ..., 166863]
+       3        88  [558, 868, ..., 259215]
+      38        75  [421, 768, ..., 402120]
+
+
+
+Weighted Clustering
+-------------------
+
+The second step in the workflow is to perform the clustering of the same network,
+now augmented with the information extracted from the siRNA screens.
+
+The script to perform an automated run of *weighted_clustering* is included in
+the file :doc:`weighted_clustering.py <../weighted_clustering>`.
+
+Execution of the code should be performed as follows:
+
+.. code-block:: console
+
+  (attain) ~attain$ python weighted_clustering.py <options>
+
+  -h(--help)
+    Show the help and finish execution
+  -e(--edges)
+    Indicate the file where the interactions (edges) of the network are stored
+  -w(--weights)
+    Indicate the file where the weights (of each node) of the network are stored
+
+By default, the script will look for ``data/network1_chuang.txt`` when no edges
+file is provided, and ``data/weights1_APP_siRNA.xlsx`` when no weights file is
+provided.
+
+Upon loading, the user is requested the column of the weights file to be used
+by the script. Next, weights are assigned according to the following steps:
+
+#.  Retrieve from the siRNA screen the value associated to each gene in the network;
+#.  Replace the negative values found by their absolute value;
+#.  For nodes that are not found in the siRNA screen, use the median value of
+    all other nodes in the network; and
+#.  Define the weight of every edge in the network as the sum of the weights of
+    its source and target nodes.
+
+For implementation details of the previous method, see functions
+:py:func:`add_gene_weights() <attain_network.AttainNetwork.add_gene_weights>`
+and :py:func:`init_edges_weights() <attain_network.AttainNetwork.init_edges_weights>`
+of class :class:`AttainNetwork <attain_network.AttainNetwork>`.
+
+As with the unweighted case, once the clustering has been completed, the user is
+able to save the results to two different files. Included in the ``results`` folder
+of our code distribution, are the files obtained when clustering the Chuang PPI
+Network using each of the five available siRNA readouts. Files for each readout
+are named ``chuang_wgt_<readout>_gene.csv`` and ``chuang_wgt_<readout>_cluster.csv``.
+
+Randomly Weighted Network Clustering
+------------------------------------
+
+Finally, we proceed with the clustering of the network using randomly assigned
+weights to the edges. The script needed to perform a batch of automated runs of
+*randomly weighted clustering* is included in file
+:doc:`randomWeight_clustering.py <randomWeight_clustering>`.
+
+Execution of the code should be performed as follows:
+
+.. code-block:: console
+
+  (attain) ~attain$ python randomWeight_clustering.py <options>
+
+  -h(--help)
+    Show the help and finish execution
+  -e(--edges)
+    Indicate the file where the interactions (edges) of the network are stored
+  -w(--weights)
+    Indicate the file where the weights (of each node) of the network are stored
+  -i(--iterations)
+    The number of iterations (runs) that a randomized network will be generated
+    and clustered
+  -s(--seed)
+    A seed (int between 0 and 2**32 -1)for the random sequence generator used to
+    randomize the weights assigned to the nodes in the network. By providing the
+    same value, it is possible to reproduce the clustering results
+
+The script will use file ``data/network1_Chuang.txt`` if no edges information is
+provided, and file ``data/weights1_APP_siRNA.xlsx`` if no weights information is
+provided. Default values for number of iterations and seed are ``10`` and
+``187372311`` respectively.
+
+As with the weighted scheme, the user is prompted to select a  single readout to
+for the randomization of weights from the ones available in the input file.
+
+Once all the iterations have been completed, the user is given the option to save
+the results to a single output file.
+
+Files that include the results for 1000 runs of randomized weighted clustering for
+each readout are provided in the ``results`` folder of our code distribution.
+Files are named ``chuang_rand_<readout>_1000.csv``.

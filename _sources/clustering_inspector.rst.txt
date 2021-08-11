@@ -1,0 +1,10 @@
+Clustering Inspector
+====================
+
+.. moduleauthor:: Rodolfo Allendes <rallendes@nibiohn.go.jp>
+.. automodule:: clustering_inspector
+
+.. autoclass:: ClusteringInspector
+  :members:
+
+  .. automethod:: __init__

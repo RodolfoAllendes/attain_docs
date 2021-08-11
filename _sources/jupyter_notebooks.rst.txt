@@ -1,0 +1,11 @@
+Jupyter Notebooks List
+======================
+
+The following list provides a description of all the supplementary notebooks
+included in the ``Notebooks`` folder of our code distribution
+
+* :doc:`Figures 2 and 3 <notebooks/fig2-3>`
+* :doc:`Figures 4 to 6 <notebooks/fig4to6>`
+* :doc:`Figures 7 and 10 <notebooks/fig7and10>`
+* :doc:`Figures 8 9 and 11 <notebooks/fig89and11>`
+* :doc:`Figure 12 <notebooks/fig12>`
