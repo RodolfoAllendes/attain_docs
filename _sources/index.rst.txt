@@ -10,18 +10,20 @@
   Data Format <tutorial_data>
   Network Generation and Clustering <tutorial_clustering>
   Cluster Revision and Enrichment <tutorial_enrichment>
-  unweighted_clustering.py <unweighted_clustering>
-  weighted_clustering.py <weighted_clustering>
-  randomWeight_clustering.py <randomWeight_clustering>
-  cluster_inspection.py <cluster_inspection>
-  attain_network.py <attain_network>
-  clustering_inspector.py <clustering_inspector>
   Jupyter notebooks <jupyter_notebooks>
   Figures 2 and 3 <notebooks/fig2-3>
   Figures 4 to 6 <notebooks/fig4to6>
   Figures 7 and 10 <notebooks/fig7and10>
   Figures 8, 9 and 11 <notebooks/fig89and11>
   Figure 12 <notebooks/fig12>
+
+..
+  unweighted_clustering.py <unweighted_clustering>
+  weighted_clustering.py <weighted_clustering>
+  randomWeight_clustering.py <randomWeight_clustering>
+  cluster_inspection.py <cluster_inspection>
+  attain_network.py <attain_network>
+  clustering_inspector.py <clustering_inspector>
 
 Welcome to ATTAIN's documentation!
 ==================================
@@ -55,24 +57,25 @@ This tutorial is divided into the following sections:
 #. :doc:`Network Generation and Clustering <tutorial_clustering>`
 #. :doc:`Cluster Revision and Enrichment <tutorial_enrichment>`
 
-Code
-----
+..
+	Code
+	----
 
-The general method described in our article is supported by the implementation
-of the following Python scrips:
+	The general method described in our article is supported by the implementation
+	of the following Python scrips:
 
-* :doc:`unweighted_clustering.py <unweighted_clustering>`
-* :doc:`weighted_clustering.py <weighted_clustering>`
-* :doc:`randomWeight_clustering.py <randomWeight_clustering>`
-* :doc:`cluster_inspection.py <cluster_inspection>`
+	* :doc:`unweighted_clustering.py <unweighted_clustering>`
+	* :doc:`weighted_clustering.py <weighted_clustering>`
+	* :doc:`randomWeight_clustering.py <randomWeight_clustering>`
+	* :doc:`cluster_inspection.py <cluster_inspection>`
 
-The documentation for the classes consumed by the all the scripts in our
-implementation is as follows:
+	The documentation for the classes consumed by the all the scripts in our
+	implementation is as follows:
 
-* :doc:`ATTAIN Network <attain_network>`
-* :doc:`Clustering Inspector <clustering_inspector>`
+	* :doc:`ATTAIN Network <attain_network>`
+	* :doc:`Clustering Inspector <clustering_inspector>`
 
-Finally, we also provide a set of supplementary Jupyter Notebooks. These were
-used for the production of (nearly) all the figures included in the main article:
+	Finally, we also provide a set of supplementary Jupyter Notebooks. These were
+	used for the production of (nearly) all the figures included in the main article:
 
 * :doc:`Additional Jupyter Notebooks <jupyter_notebooks>`
