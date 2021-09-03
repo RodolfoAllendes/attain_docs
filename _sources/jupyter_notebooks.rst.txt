@@ -9,3 +9,4 @@ included in the ``Notebooks`` folder of our code distribution
 * :doc:`Figures 7 and 10 <notebooks/fig7and10>`
 * :doc:`Figures 8 9 and 11 <notebooks/fig89and11>`
 * :doc:`Figure 12 <notebooks/fig12>`
+* :doc:`Figure 14 <notebooks/fig14>`
