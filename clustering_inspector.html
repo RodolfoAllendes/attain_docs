@@ -50,15 +50,15 @@ a user specified gene. The enrichment results are only displayed to screen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>_rand</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Random state of the Network</p></li>
+<li><p><strong>_rand</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Random state of the Network</p></li>
 <li><p><strong>_genes</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store the genes of the network</p></li>
 <li><p><strong>_edges</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store the edges of the network</p></li>
 <li><p><strong>_clusters</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store clusters information</p></li>
 <li><p><strong>_pathways</strong> (<em>DataFrame</em>) – Pandas DataFrame used to store enrichment results</p></li>
 <li><p><strong>_service</strong> (<em>Service</em>) – A TargetMine service object used for enrichment analysis</p></li>
-<li><p><strong>_serviceOpts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – The options used for Enrichment throught the TargetMine API</p></li>
-<li><p><strong>_isRandom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Are we looking at clustering results from a randomized experiment</p></li>
-<li><p><strong>_hasClusterDetails</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether cluster information are provided as separate file</p></li>
+<li><p><strong>_serviceOpts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – The options used for Enrichment throught the TargetMine API</p></li>
+<li><p><strong>_isRandom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Are we looking at clustering results from a randomized experiment</p></li>
+<li><p><strong>_hasClusterDetails</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether cluster information are provided as separate file</p></li>
 </ul>
 </dd>
 </dl>
@@ -76,8 +76,8 @@ a user specified gene. The enrichment results are only displayed to screen.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>int</strong> (<em>cid</em>) – The cluster id that produced the enrichment</p></li>
-<li><p><strong>paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – the list of pathways to store</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If true, print the _pahtways DF to stardar output</p></li>
+<li><p><strong>paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – the list of pathways to store</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If true, print the _pahtways DF to stardar output</p></li>
 </ul>
 </dd>
 </dl>
@@ -89,7 +89,7 @@ a user specified gene. The enrichment results are only displayed to screen.</p>
 <dd><p>Perform pathway enrichment for the given genes using current options</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – A list of GeneIDs</p>
+<dd class="field-odd"><p><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – A list of GeneIDs</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The list of enriched pathways found using TargetMine</p>
@@ -117,7 +117,7 @@ with only the required columns defined</p>
 <dd><p>Print to standard output the largest clusters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of largest clusters to print</p>
+<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of largest clusters to print</p>
 </dd>
 </dl>
 </dd></dl>
@@ -132,8 +132,8 @@ same cluster as the given gene.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>geneID</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The id of the gene whose cluster we want to access</p></li>
-<li><p><strong>run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The specific clustering run we want to use</p></li>
+<li><p><strong>geneID</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The id of the gene whose cluster we want to access</p></li>
+<li><p><strong>run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The specific clustering run we want to use</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return list</dt>
@@ -149,7 +149,7 @@ same cluster as the given gene.</p>
 Overrides AttainNetwork</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The ID of the gene to return</p>
+<dd class="field-odd"><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The ID of the gene to return</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The information stored in the network for the given gene</p>
@@ -244,10 +244,10 @@ through the TargetMine service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>service</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The enrichment service to use</p></li>
-<li><p><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The user name registered in the service</p></li>
-<li><p><strong>pwd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The password for the given user</p></li>
-<li><p><strong>token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Alternative to user/pwd login, the token registered to use a given account in the corresponding service</p></li>
+<li><p><strong>service</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The enrichment service to use</p></li>
+<li><p><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The user name registered in the service</p></li>
+<li><p><strong>pwd</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The password for the given user</p></li>
+<li><p><strong>token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Alternative to user/pwd login, the token registered to use a given account in the corresponding service</p></li>
 </ul>
 </dd>
 </dl>
@@ -261,7 +261,7 @@ through the TargetMine service.</p>
 during an unweighed or weighted clustering experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The file with the cluster information</p>
+<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The file with the cluster information</p>
 </dd>
 </dl>
 </dd></dl>
@@ -274,7 +274,7 @@ during an unweighed or weighted clustering experiment.</p>
 during an unweighed or weighted clustering experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The file with the genes information</p>
+<dd class="field-odd"><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The file with the genes information</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,7 +291,7 @@ during an unweighed or weighted clustering experiment.</p>
 <dd><p>Set the value of _hasClusterDetails</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The value to set the parameter</p>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – The value to set the parameter</p>
 </dd>
 <dt class="field-even">Return bool</dt>
 <dd class="field-even"><p>Whether the value was updated or not</p>
@@ -305,7 +305,7 @@ during an unweighed or weighted clustering experiment.</p>
 <dd><p>Set the value of the _isRandom parameter</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The value to set the parameter</p>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – The value to set the parameter</p>
 </dd>
 <dt class="field-even">Return bool</dt>
 <dd class="field-even"><p>Whether the value was updated or not</p>
